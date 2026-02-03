@@ -1,0 +1,142 @@
+.house-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.detail-header h1 {
+  flex: 1;
+  margin: 0;
+}
+
+.back-button {
+  margin-right: 0.5rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.house-detail-content {
+  display: grid;
+  gap: 2rem;
+}
+
+.main-info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.main-info-card mat-card-title,
+.main-info-card mat-card-subtitle {
+  color: white;
+}
+
+.status-section {
+  margin: 1rem 0;
+}
+
+.price-section {
+  margin-top: 1.5rem;
+}
+
+.price-label {
+  font-size: 0.875rem;
+  opacity: 0.8;
+  margin-bottom: 0.5rem;
+}
+
+.price-value {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.info-card {
+  margin-bottom: 1rem;
+}
+
+.info-card mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.info-value {
+  font-weight: 400;
+}
+
+.description-text {
+  line-height: 1.6;
+  margin: 0;
+}
+
+.media-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.media-item {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.media-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #1976d2;
+}
+
+.media-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .house-detail-container {
+    padding: 1rem;
+  }
+  
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

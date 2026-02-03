@@ -1,0 +1,186 @@
+<mat-card class="house-form-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Edit House' : 'Create New House' }}
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form [formGroup]="houseForm" class="house-form">
+      
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h3>Basic Information</h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>House Number</mat-label>
+            <input matInput formControlName="houseNumber" placeholder="e.g., H-001">
+            @if (houseForm.get('houseNumber')?.hasError('required')) {
+              <mat-error>
+                House number is required
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>House Type</mat-label>
+            <mat-select formControlName="houseType">
+              @for (option of houseTypeOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>House Model</mat-label>
+            <input matInput formControlName="houseModel" placeholder="e.g., Modern Villa">
+            @if (houseForm.get('houseModel')?.hasError('required')) {
+              <mat-error>
+                House model is required
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status">
+              @for (option of statusOptions; track option.value) {
+                <mat-option [value]="option.value">{{ option.label }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Location Information -->
+      <div class="form-section">
+        <h3>Location Information</h3>
+        
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Block Number</mat-label>
+            <input matInput formControlName="blockNumber" placeholder="e.g., A">
+            @if (houseForm.get('blockNumber')?.hasError('required')) {
+              <mat-error>
+                Block number is required
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Land Number</mat-label>
+            <input matInput formControlName="landNumber" placeholder="e.g., 01">
+            @if (houseForm.get('landNumber')?.hasError('required')) {
+              <mat-error>
+                Land number is required
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Pricing Information -->
+      <div class="form-section">
+        <h3>Pricing Information</h3>
+        
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Price (IDR)</mat-label>
+          <input 
+            matInput 
+            type="number" 
+            formControlName="price" 
+            placeholder="0">
+          <span matPrefix>Rp&nbsp;</span>
+          <mat-hint>Enter price in Indonesian Rupiah</mat-hint>
+          @if (houseForm.get('price')?.hasError('required')) {
+            <mat-error>
+              Price is required
+            </mat-error>
+          }
+          @if (houseForm.get('price')?.hasError('min')) {
+            <mat-error>
+              Price must be greater than 0
+            </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="form-section">
+        <h3>Additional Information</h3>
+        
+        <mat-form-field appearance="outline" class="form-field full-width">
+          <mat-label>Description</mat-label>
+          <textarea 
+            matInput 
+            formControlName="description" 
+            rows="4"
+            placeholder="Enter house description...">
+          </textarea>
+          <mat-hint>Optional description of the house</mat-hint>
+        </mat-form-field>
+
+        <div class="media-section">
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Media URLs</mat-label>
+            <input 
+              matInput 
+              #mediaInput
+              placeholder="Enter image or video URL"
+              (keyup.enter)="addMedia(mediaInput.value); mediaInput.value = ''">
+            <button 
+              matSuffix 
+              mat-icon-button 
+              type="button"
+              (click)="addMedia(mediaInput.value); mediaInput.value = ''"
+              [disabled]="!mediaInput.value">
+              <mat-icon>add</mat-icon>
+            </button>
+            <mat-hint>Press Enter or click + to add media URL</mat-hint>
+          </mat-form-field>
+
+          @if (mediaList.length > 0) {
+            <div class="media-chips">
+              <mat-chip-set>
+                @for (media of mediaList; track $index; let i = $index) {
+                  <mat-chip 
+                    (removed)="removeMedia(i)">
+                    {{ media }}
+                    <button matChipRemove>
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            </div>
+          }
+        </div>
+      </div>
+
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions class="form-actions">
+    <button 
+      mat-button 
+      type="button" 
+      (click)="onCancel()">
+      <mat-icon>cancel</mat-icon>
+      Cancel
+    </button>
+    
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="button"
+      [disabled]="houseForm.invalid || isSubmitting()"
+      (click)="onSubmit()">
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      {{ isSubmitting() ? 'Saving...' : (isEditMode ? 'Update House' : 'Create House') }}
+    </button>
+  </mat-card-actions>
+</mat-card>

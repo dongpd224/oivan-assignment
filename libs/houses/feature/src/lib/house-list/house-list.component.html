@@ -1,0 +1,101 @@
+<div class="house-list-container">
+  <mat-toolbar class="page-toolbar">
+    <span class="page-title">
+      <mat-icon>home</mat-icon>
+      Houses
+    </span>
+    <span class="spacer"></span>
+    @if (isAuthenticated) {
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="createHouse()">
+        <mat-icon>add</mat-icon>
+        Create New House
+      </button>
+    }
+  </mat-toolbar>
+
+  <div class="content-container">
+    <div class="filter-section">
+      <lib-houses-house-filter
+        [availableBlocks]="availableBlocks"
+        [availableLands]="availableLands"
+        [initialFilter]="currentFilter"
+        (filterChange)="onFilterChange($event)"
+        (filterClear)="onFilterClear()">
+      </lib-houses-house-filter>
+    </div>
+
+    <div class="houses-section">
+      <div class="section-header">
+        <h2>Available Houses</h2>
+        @if (!loading && houses.length > 0) {
+          <p>
+            Showing {{ houses.length }} house{{ houses.length !== 1 ? 's' : '' }}
+          </p>
+        }
+      </div>
+
+      @if (loading) {
+        <lib-shared-loading-spinner 
+          message="Loading houses...">
+        </lib-shared-loading-spinner>
+      }
+
+      @if (error && !loading) {
+        <lib-shared-error-message 
+          type="error"
+          title="Failed to Load Houses"
+          [message]="error"
+          [showRetry]="true"
+          (retry)="loadHouses()">
+        </lib-shared-error-message>
+      }
+
+      @if (!loading && !error) {
+        <div class="houses-content">
+          <!-- Table View -->
+          <div class="table-view">
+            <lib-houses-house-table
+              [houses]="houses"
+              [showEditActions]="isAuthenticated"
+              (viewDetails)="onViewDetails($event)"
+              (edit)="onEditHouse($event)">
+            </lib-houses-house-table>
+          </div>
+
+          <!-- Card Grid View (Alternative) -->
+          <div class="card-view" style="display: none;">
+            <div class="house-grid">
+              @for (house of houses; track house.id) {
+                <lib-houses-house-card
+                  [house]="house"
+                  [showEditButton]="isAuthenticated"
+                  (viewDetails)="onViewDetails($event)"
+                  (edit)="onEditHouse($event)">
+                </lib-houses-house-card>
+              }
+            </div>
+          </div>
+
+          @if (houses.length === 0) {
+            <div class="no-houses">
+              <mat-icon class="no-houses-icon">home_work</mat-icon>
+              <h3>No houses found</h3>
+              <p>{{ currentFilter ? 'Try adjusting your filters to see more results.' : 'No houses are currently available.' }}</p>
+              @if (currentFilter) {
+                <button 
+                  mat-button 
+                  color="primary"
+                  (click)="onFilterClear()">
+                  Clear Filters
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

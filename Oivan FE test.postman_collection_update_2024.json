@@ -1,0 +1,394 @@
+{
+	"info": {
+		"_postman_id": "dc2c3632-5c98-4958-9573-80b16c7140b7",
+		"name": "Oivan FE test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11599668"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authentication",
+						"value": "Aa123456",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.api+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"type\": \"auth\",\n        \"attributes\": {\n            \"username\": \"admin1\",\n            \"password\": \"p@ssw0rd\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/auth",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "House Models List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{domain}}/house_models",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"house_models"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "House list",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{domain}}/houses",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"houses"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create House",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authentication",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.api+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"type\": \"houses\",\n        \"attributes\": {\n            \"house_number\": \"Test-house\",\n            \"block_number\": \"A\",\n            \"land_number\": \"B\",\n            \"model\": \"apartment-1\",\n            \"house_type\": \"apartment\",\n            \"price\": 1000\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/houses",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"houses"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create House - success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authentication",
+								"value": "Aa123456",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"houses\",\n        \"attributes\": {\n            \"house_number\": \"Test-house\",\n            \"block_number\": \"A\",\n            \"land_number\": \"B\",\n            \"model\": \"apartment-1\",\n            \"house_type\": \"apartment\",\n            \"price\": 1000\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/houses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"houses"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Frame-Options",
+							"value": "SAMEORIGIN"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-Download-Options",
+							"value": "noopen"
+						},
+						{
+							"key": "X-Permitted-Cross-Domain-Policies",
+							"value": "none"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "strict-origin-when-cross-origin"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/vnd.api+json"
+						},
+						{
+							"key": "Location",
+							"value": "http://localhost:3000/houses/11"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept, Origin"
+						},
+						{
+							"key": "ETag",
+							"value": "W/\"c58a29ed22fad8df95c4e7e99f332ac7\""
+						},
+						{
+							"key": "Cache-Control",
+							"value": "max-age=0, private, must-revalidate"
+						},
+						{
+							"key": "X-Request-Id",
+							"value": "df90cc3c-5718-4dee-b4f1-eaea36c7884a"
+						},
+						{
+							"key": "X-Runtime",
+							"value": "0.027788"
+						},
+						{
+							"key": "Server-Timing",
+							"value": "start_processing.action_controller;dur=0.21, sql.active_record;dur=13.54, instantiation.active_record;dur=0.19, process_action.action_controller;dur=21.00"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"id\": \"11\",\n        \"type\": \"houses\",\n        \"links\": {\n            \"self\": \"http://localhost:3000/houses/11\"\n        },\n        \"attributes\": {\n            \"house_number\": \"Test-house\",\n            \"price\": 1000,\n            \"block_number\": \"A\",\n            \"land_number\": \"B\",\n            \"house_type\": \"apartment\",\n            \"model\": \"apartment-1\",\n            \"status\": null\n        }\n    }\n}"
+				},
+				{
+					"name": "Create House - error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authentication",
+								"value": "Aa123456",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/vnd.api+json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"type\": \"houses\",\n        \"attributes\": {\n            \"house_number\": \"Test-house\"\n      \n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domain}}/houses",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"houses"
+							]
+						}
+					},
+					"status": "Unprocessable Entity",
+					"code": 422,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Frame-Options",
+							"value": "SAMEORIGIN"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-Download-Options",
+							"value": "noopen"
+						},
+						{
+							"key": "X-Permitted-Cross-Domain-Policies",
+							"value": "none"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "strict-origin-when-cross-origin"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/vnd.api+json"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept, Origin"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache"
+						},
+						{
+							"key": "X-Request-Id",
+							"value": "4154a30c-f5e7-4b14-97a2-8a790f9c7458"
+						},
+						{
+							"key": "X-Runtime",
+							"value": "0.011144"
+						},
+						{
+							"key": "Server-Timing",
+							"value": "start_processing.action_controller;dur=0.17, process_action.action_controller;dur=6.06"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"errors\": [\n        {\n            \"title\": \"must exist\",\n            \"detail\": \"house_model - must exist\",\n            \"code\": \"100\",\n            \"source\": {\n                \"pointer\": \"/data/relationships/house_model\"\n            },\n            \"status\": \"422\"\n        },\n        {\n            \"title\": \"can't be blank\",\n            \"detail\": \"block_number - can't be blank\",\n            \"code\": \"100\",\n            \"source\": {\n                \"pointer\": \"/data/attributes/block_number\"\n            },\n            \"status\": \"422\"\n        },\n        {\n            \"title\": \"can't be blank\",\n            \"detail\": \"land_number - can't be blank\",\n            \"code\": \"100\",\n            \"source\": {\n                \"pointer\": \"/data/attributes/land_number\"\n            },\n            \"status\": \"422\"\n        },\n        {\n            \"title\": \"can't be blank\",\n            \"detail\": \"house_type - can't be blank\",\n            \"code\": \"100\",\n            \"source\": {\n                \"pointer\": \"/data/attributes/house_type\"\n            },\n            \"status\": \"422\"\n        },\n        {\n            \"title\": \"is not a number\",\n            \"detail\": \"price - is not a number\",\n            \"code\": \"100\",\n            \"source\": {\n                \"pointer\": \"/data/attributes/price\"\n            },\n            \"status\": \"422\"\n        }\n    ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Update House",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "authentication",
+						"value": "{{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/vnd.api+json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"data\": {\n        \"type\": \"houses\",\n        \"id\": \"6\",\n        \"attributes\": {\n            \"house_number\": \"Test-house1\",\n            \"block_number\": \"A\",\n            \"land_number\": \"B\",\n            \"model\": \"apartment-1\",\n            \"house_type\": \"apartment\",\n            \"price\": 1000\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domain}}/houses/:id",
+					"host": [
+						"{{domain}}"
+					],
+					"path": [
+						"houses",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "6"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "domain",
+			"value": "https://vn-fe-test-api.iwalabs.info"
+		},
+		{
+			"key": "token",
+			"value": "get_after_login",
+			"type": "string"
+		}
+	]
+}

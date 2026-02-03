@@ -1,0 +1,16 @@
+<div class="login-container">
+  <div class="login-content">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Please sign in to your account</p>
+    </div>
+    
+    <lib-auth-login-form 
+      (loginSubmit)="onLogin($event)">
+    </lib-auth-login-form>
+    
+    <div class="login-footer">
+      <p>Don't have an account? <a href="#" (click)="onSignUp($event)">Sign up</a></p>
+    </div>
+  </div>
+</div>

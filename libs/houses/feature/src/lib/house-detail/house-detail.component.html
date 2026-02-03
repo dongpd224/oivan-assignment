@@ -1,0 +1,182 @@
+<div class="house-detail-container">
+  <div class="detail-header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>House Details</h1>
+    <div class="header-actions">
+      @if (house) {
+        <button mat-raised-button color="primary" (click)="editHouse()">
+          <mat-icon>edit</mat-icon>
+          Edit House
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (loading) {
+    <lib-shared-loading-spinner 
+      message="Loading house details...">
+    </lib-shared-loading-spinner>
+  }
+
+  @if (error && !loading) {
+    <lib-shared-error-message 
+      type="error"
+      title="Failed to Load House"
+      [message]="error"
+      [showRetry]="true"
+      (retry)="loadHouse()">
+    </lib-shared-error-message>
+  }
+
+  @if (house && !loading) {
+    <div class="house-detail-content">
+      
+      <!-- Main Information Card -->
+      <mat-card class="main-info-card">
+        <mat-card-header>
+          <mat-card-title>{{ house.getFullHouseNumber() }}</mat-card-title>
+          <mat-card-subtitle>{{ house.houseType }} - {{ house.houseModel }}</mat-card-subtitle>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="status-section">
+            <mat-chip 
+              [color]="house.status === houseStatus.AVAILABLE ? 'primary' : 'warn'"
+              selected>
+              <mat-icon matChipAvatar>
+                {{ house.status === houseStatus.AVAILABLE ? 'check_circle' : 'block' }}
+              </mat-icon>
+              {{ house.status }}
+            </mat-chip>
+          </div>
+
+          <div class="price-section">
+            <div class="price-label">Price</div>
+            <div class="price-value">{{ house.getFormattedPrice() }}</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Location Information -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>location_on</mat-icon>
+            Location Information
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Block Number:</span>
+              <span class="info-value">{{ house.blockNumber }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Land Number:</span>
+              <span class="info-value">{{ house.landNumber }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Full Address:</span>
+              <span class="info-value">Block {{ house.blockNumber }}, Land {{ house.landNumber }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Property Details -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>home</mat-icon>
+            Property Details
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">House Type:</span>
+              <span class="info-value">{{ house.houseType }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">House Model:</span>
+              <span class="info-value">{{ house.houseModel }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">House Number:</span>
+              <span class="info-value">{{ house.houseNumber }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Description -->
+      @if (house.description) {
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>description</mat-icon>
+              Description
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <p class="description-text">{{ house.description }}</p>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Media Gallery -->
+      @if (house.media && house.media.length > 0) {
+        <mat-card class="info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>photo_library</mat-icon>
+              Media Gallery
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="media-gallery">
+              @for (media of house.media; track media) {
+                <div class="media-item">
+                  <a [href]="media" target="_blank" class="media-link">
+                    <mat-icon>open_in_new</mat-icon>
+                    {{ getMediaFileName(media) }}
+                  </a>
+                </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Timestamps -->
+      <mat-card class="info-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>schedule</mat-icon>
+            Timeline
+          </mat-card-title>
+        </mat-card-header>
+        
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Created:</span>
+              <span class="info-value">{{ house.createdAt | date:'medium' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Last Updated:</span>
+              <span class="info-value">{{ house.updatedAt | date:'medium' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  }
+</div>
