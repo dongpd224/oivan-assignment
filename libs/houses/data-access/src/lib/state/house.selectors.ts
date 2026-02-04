@@ -1,6 +1,6 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { HouseState } from './house.reducer';
-import { HouseStatus } from '@oivan/houses/domain';
+import { HouseStatus, GroupedHouseModel } from '@oivan/houses/domain';
 
 export const HOUSE_FEATURE_KEY = 'house';
 
@@ -92,4 +92,42 @@ export const selectAvailableBlocks = createSelector(
 export const selectAvailableLands = createSelector(
   selectHouses,
   (houses) => [...new Set(houses.map(house => house.landNumber))].sort()
+);
+
+// HouseModel Selectors
+export const selectHouseModels = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.houseModels
+);
+
+export const selectSelectedHouseModel = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.selectedHouseModel
+);
+
+export const selectIsLoadingHouseModels = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.isLoadingHouseModels
+);
+
+export const selectHouseModelError = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.houseModelError
+);
+
+export const selectHouseModelsByType = (houseType: string) => createSelector(
+  selectHouseModels,
+  (houseModels) => houseModels.filter(model => model.houseType === houseType)
+);
+
+// Grouped Houses Selectors
+export const selectGroupedHouses = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.groupedHouses
+);
+
+export const selectNonEmptyGroupedHouses = createSelector(
+  selectGroupedHouses,
+  (groupedHouses: GroupedHouseModel[]) => 
+    groupedHouses.filter(group => group.housesCount > 0)
 );

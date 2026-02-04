@@ -1,16 +1,19 @@
-<div class="auth-layout">
-  <mat-toolbar class="auth-toolbar" color="primary">
-    <mat-icon>home</mat-icon>
-    <span class="app-name">House Management</span>
-    <span class="spacer"></span>
-    <span class="auth-subtitle">Authentication</span>
-  </mat-toolbar>
+<div class="d-flex flex-column min-vh-100">
+  <nav class="navbar navbar-expand navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+        <mat-icon>home</mat-icon>
+        <span>House Management</span>
+      </a>
+      <span class="navbar-text opacity-75">Authentication</span>
+    </div>
+  </nav>
   
-  <main class="auth-main">
+  <main class="flex-grow-1 d-flex align-items-center justify-content-center">
     <router-outlet></router-outlet>
   </main>
   
-  <footer class="auth-footer">
-    <p>&copy; 2024 House Management System. All rights reserved.</p>
+  <footer class="bg-light border-top py-3 text-center">
+    <p class="text-muted small mb-0">&copy; 2024 House Management System. All rights reserved.</p>
   </footer>
 </div>

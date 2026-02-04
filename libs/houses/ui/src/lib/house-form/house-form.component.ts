@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { HouseModel, HouseStatus, HouseType } from '../../../../domain/src';
+import { HouseDetailModel, HouseStatus, HouseType } from '../../../../domain/src';
 
 interface DropdownOption {
   value: any;
@@ -33,10 +33,10 @@ interface DropdownOption {
   styleUrl: './house-form.component.scss'
 })
 export class HouseFormComponent implements OnInit, OnChanges {
-  house = input<HouseModel>();
+  house = input<HouseDetailModel>();
   isSubmitting = input<boolean>(false);
 
-  formSubmit = output<HouseModel>();
+  formSubmit = output<HouseDetailModel>();
   formCancel = output<void>();
 
   houseForm!: FormGroup;
@@ -70,11 +70,10 @@ export class HouseFormComponent implements OnInit, OnChanges {
       houseNumber: ['', [Validators.required]],
       blockNumber: ['', [Validators.required]],
       landNumber: ['', [Validators.required]],
-      houseType: [HouseType.APARTMENT, [Validators.required]],
-      houseModel: ['', [Validators.required]],
+      houseType: ['', [Validators.required]],
+      model: ['', [Validators.required]],
       price: [0, [Validators.required, Validators.min(1)]],
-      status: [HouseStatus.AVAILABLE, [Validators.required]],
-      description: ['']
+      status: [HouseStatus.AVAILABLE, [Validators.required]]
     });
   }
 
@@ -98,13 +97,12 @@ export class HouseFormComponent implements OnInit, OnChanges {
         blockNumber: house.blockNumber,
         landNumber: house.landNumber,
         houseType: house.houseType,
-        houseModel: house.houseModel,
+        model: house.model,
         price: house.price,
         status: house.status,
-        description: house.description || ''
       });
 
-      this.mediaList = house.media ? [...house.media] : [];
+      this.mediaList = house.links ? [...house.links.self] : [];
     }
   }
 
@@ -126,21 +124,15 @@ export class HouseFormComponent implements OnInit, OnChanges {
       const houseData = {
         ...formValue,
         media: this.mediaList.length > 0 ? this.mediaList : undefined,
-        id: house?.id || this.generateId(),
-        createdAt: house?.createdAt || new Date(),
-        updatedAt: new Date()
+        id: house?.id,
       };
 
-      const newHouse = new HouseModel(houseData, false);
+      const newHouse = new HouseDetailModel(houseData, false);
       this.formSubmit.emit(newHouse);
     }
   }
 
   onCancel() {
     this.formCancel.emit();
-  }
-
-  private generateId(): string {
-    return 'house_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
   }
 }

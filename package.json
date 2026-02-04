@@ -2,7 +2,10 @@
   "name": "@oivan/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "nx serve web",
+    "start:prod": "nx serve web --configuration=production"
+  },
   "private": true,
   "dependencies": {
     "@angular-devkit/build-angular": "21.1.1",
@@ -20,6 +23,7 @@
     "@ngrx/effects": "^21.0.1",
     "@ngrx/store": "^21.0.1",
     "@ngrx/store-devtools": "^21.0.1",
+    "bootstrap": "^5.3.8",
     "express": "^4.21.2",
     "rxjs": "~7.8.0",
     "zone.js": "0.16.0"

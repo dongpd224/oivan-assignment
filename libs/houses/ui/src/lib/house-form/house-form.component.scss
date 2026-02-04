@@ -1,63 +1,48 @@
-.house-form-card {
-  max-width: 800px;
-  margin: 2rem auto;
-}
-
-.house-form {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
+/* Responsive styles for house form */
 .form-section {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.form-section h3 {
-  margin: 0 0 1rem 0;
-  color: #1976d2;
-  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 1rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .form-field {
-  width: 100%;
+  flex: 1;
+  min-width: 200px;
 }
 
 .full-width {
-  grid-column: 1 / -1;
+  width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767.98px) {
   .form-row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+  
+  .form-field {
+    width: 100%;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  fieldset {
+    padding: 0.75rem !important;
   }
 }
 
-.media-section {
-  margin-top: 1rem;
-}
-
-.media-chips {
-  margin-top: 1rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-}
-
-mat-card-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+@media (max-width: 575.98px) {
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+    
+    button {
+      width: 100%;
+    }
+  }
 }

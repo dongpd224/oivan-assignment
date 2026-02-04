@@ -7,9 +7,9 @@ export const appRoutes: Route[] = [
     pathMatch: 'full'
   },
   {
-    path: 'auth',
-    loadChildren: () => import('@oivan/auth/feature').then(m => m.authRoutes),
-    title: 'Authentication'
+    path: 'auth/login',
+    redirectTo: '/houses',
+    pathMatch: 'full'
   },
   {
     path: 'houses',

@@ -1,9 +1,10 @@
 // Auth Token Model
 export enum AUTH_TOKEN_MAPPING_FIELD {
-  accessToken = 'accessToken',
+  accessToken = 'token',
   refreshToken = 'refreshToken',
   expiresIn = 'expiresIn',
-  tokenType = 'tokenType'
+  tokenType = 'tokenType',
+  attributes = 'attributes',
 }
 
 export interface AuthTokenConvertToReqBody {
@@ -31,7 +32,7 @@ export class AuthTokenModel {
   }
 
   private parseFromBackend(respObject: any) {
-    this.accessToken = respObject[AUTH_TOKEN_MAPPING_FIELD.accessToken];
+    this.accessToken = respObject[AUTH_TOKEN_MAPPING_FIELD.attributes]?.[AUTH_TOKEN_MAPPING_FIELD.accessToken];
     this.refreshToken = respObject[AUTH_TOKEN_MAPPING_FIELD.refreshToken];
     this.expiresIn = respObject[AUTH_TOKEN_MAPPING_FIELD.expiresIn];
     this.tokenType = respObject[AUTH_TOKEN_MAPPING_FIELD.tokenType];

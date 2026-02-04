@@ -1,15 +1,8 @@
-<mat-card class="filter-card">
-  <mat-card-header>
-    <mat-card-title>
-      <mat-icon>filter_list</mat-icon>
-      Filter Houses
-    </mat-card-title>
-  </mat-card-header>
-  
-  <mat-card-content>
-    <form [formGroup]="filterForm" class="filter-form">
-      <div class="filter-row">
-        <mat-form-field appearance="outline" class="form-field">
+<div class="filter-container">
+  <form [formGroup]="filterForm">
+    <div class="row g-2 align-items-end">
+      <div class="col-auto">
+        <mat-form-field>
           <mat-label>Block Number</mat-label>
           <mat-select formControlName="blockNumber">
             <mat-option [value]="null">All Blocks</mat-option>
@@ -18,8 +11,10 @@
             }
           </mat-select>
         </mat-form-field>
+      </div>
 
-        <mat-form-field appearance="outline" class="form-field">
+      <div class="col-auto">
+        <mat-form-field>
           <mat-label>Land Number</mat-label>
           <mat-select formControlName="landNumber">
             <mat-option [value]="null">All Lands</mat-option>
@@ -30,111 +25,39 @@
         </mat-form-field>
       </div>
 
-      <div class="filter-row">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>House Type</mat-label>
-          <mat-select formControlName="houseType">
-            <mat-option [value]="null">All Types</mat-option>
-            @for (option of houseTypeOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option [value]="null">All Status</mat-option>
-            @for (option of statusOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
+      <div class="col-auto">
+        <mat-form-field>
+          <mat-label>Min Price</mat-label>
+          <input matInput type="number" formControlName="minPrice" placeholder="Min Price">
         </mat-form-field>
       </div>
 
-      <mat-expansion-panel class="price-filter-panel">
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>attach_money</mat-icon>
-            Price Range
-          </mat-panel-title>
-        </mat-expansion-panel-header>
-        
-        <div class="price-range-content">
-          <div class="price-inputs">
-            <mat-form-field appearance="outline" class="price-field">
-              <mat-label>Min Price (IDR)</mat-label>
-              <input 
-                matInput 
-                type="number" 
-                formControlName="minPrice"
-                placeholder="0">
-              <span matPrefix>Rp&nbsp;</span>
-            </mat-form-field>
+      <div class="col-auto">
+        <mat-form-field>
+          <mat-label>Max Price</mat-label>
+          <input matInput type="number" formControlName="maxPrice" placeholder="Max Price">
+        </mat-form-field>
+      </div>
 
-            <mat-form-field appearance="outline" class="price-field">
-              <mat-label>Max Price (IDR)</mat-label>
-              <input 
-                matInput 
-                type="number" 
-                formControlName="maxPrice"
-                placeholder="No limit">
-              <span matPrefix>Rp&nbsp;</span>
-            </mat-form-field>
-          </div>
-          
-          <div class="price-presets">
-            @for (preset of pricePresets; track preset.label) {
-              <button 
-                mat-stroked-button 
-                type="button"
-                (click)="applyPricePreset(preset)"
-                class="preset-button">
-                {{ preset.label }}
-              </button>
-            }
-          </div>
+      <div class="col-auto">
+        <button mat-flat-button color="primary" type="button" (click)="applyFilter()" [disabled]="!hasChanges">
+          <mat-icon>search</mat-icon> Apply
+        </button>
+      </div>
+
+      <div class="col-auto">
+        <button mat-stroked-button type="button" (click)="clearFilter()" [disabled]="!hasActiveFilters">
+          <mat-icon>clear</mat-icon> Clear
+        </button>
+      </div>
+
+      @if (showCreateButton()) {
+        <div class="col-auto ms-auto">
+          <button mat-flat-button color="accent" type="button" (click)="onCreateHouse()">
+            <mat-icon>add</mat-icon> Create new house
+          </button>
         </div>
-      </mat-expansion-panel>
-
-      <div class="filter-row">
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Sort By</mat-label>
-          <mat-select formControlName="sortBy">
-            @for (option of sortByOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="form-field">
-          <mat-label>Sort Order</mat-label>
-          <mat-select formControlName="sortOrder">
-            @for (option of sortOrderOptions; track option.value) {
-              <mat-option [value]="option.value">{{ option.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </form>
-  </mat-card-content>
-
-  <mat-card-actions class="filter-actions">
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="applyFilter()"
-      [disabled]="!hasChanges">
-      <mat-icon>search</mat-icon>
-      Apply Filter
-    </button>
-    
-    <button 
-      mat-button 
-      (click)="clearFilter()"
-      [disabled]="!hasActiveFilters">
-      <mat-icon>clear</mat-icon>
-      Clear All
-    </button>
-  </mat-card-actions>
-</mat-card>
+      }
+    </div>
+  </form>
+</div>

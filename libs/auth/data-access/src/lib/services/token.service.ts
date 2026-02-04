@@ -8,11 +8,14 @@ export class TokenService {
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
+  private readonly TOKEN_TTL_MS = 5 * 60 * 1000; // 5 phút
 
   setTokens(tokenModel: AuthTokenModel): void {
+    const expiryTime = Date.now() + this.TOKEN_TTL_MS;
+    
     localStorage.setItem(this.ACCESS_TOKEN_KEY, tokenModel.accessToken);
     localStorage.setItem(this.REFRESH_TOKEN_KEY, tokenModel.refreshToken);
-    localStorage.setItem(this.TOKEN_EXPIRY_KEY, tokenModel.expiresIn.toString());
+    localStorage.setItem(this.TOKEN_EXPIRY_KEY, expiryTime.toString());
   }
 
   getAccessToken(): string | null {
@@ -31,7 +34,7 @@ export class TokenService {
   isTokenExpired(): boolean {
     const expiry = this.getTokenExpiry();
     if (!expiry) return true;
-    return Date.now() >= expiry * 1000;
+    return Date.now() >= expiry;
   }
 
   hasValidToken(): boolean {

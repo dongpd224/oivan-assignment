@@ -1,0 +1,20 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2">
+  <mat-form-field class="flex-grow-1 flex-md-grow-0">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" type="email" placeholder="Email">
+  </mat-form-field>
+
+  <mat-form-field class="flex-grow-1 flex-md-grow-0">
+    <mat-label>Password</mat-label>
+    <input matInput formControlName="password" type="password" placeholder="Password">
+  </mat-form-field>
+
+  <button 
+    mat-flat-button 
+    color="primary" 
+    type="submit" 
+    [disabled]="loginForm.invalid"
+    class="w-100 w-md-auto">
+    Login
+  </button>
+</form>

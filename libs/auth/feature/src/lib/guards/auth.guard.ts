@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { Observable, map, take } from 'rxjs';
-import { AuthStore } from '@oivan/auth/data-access';
+import { AuthFacade } from '@oivan/auth/data-access';
 
 @Injectable({
   providedIn: 'root'
@@ -9,11 +9,11 @@ import { AuthStore } from '@oivan/auth/data-access';
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private authStore: AuthStore
+    private authFacade: AuthFacade
   ) {}
 
   canActivate(): Observable<boolean> {
-    return this.authStore.isAuthenticated$.pipe(
+    return this.authFacade.isAuthenticated$.pipe(
       take(1),
       map(isAuthenticated => {
         if (isAuthenticated) {

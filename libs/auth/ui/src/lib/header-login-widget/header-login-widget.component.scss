@@ -1,0 +1,6 @@
+// Responsive width for button on md+
+@media (min-width: 768px) {
+  button.w-md-auto {
+    width: auto !important;
+  }
+}

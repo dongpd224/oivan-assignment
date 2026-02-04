@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { App } from './app';
-import { AuthFacade } from '@oivan/auth/feature';
+import { AuthFacade } from '@oivan/auth/data-access';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
 

@@ -1,101 +1,100 @@
 <div class="house-list-container">
-  <mat-toolbar class="page-toolbar">
-    <span class="page-title">
-      <mat-icon>home</mat-icon>
-      Houses
-    </span>
-    <span class="spacer"></span>
-    @if (isAuthenticated) {
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="createHouse()">
-        <mat-icon>add</mat-icon>
-        Create New House
-      </button>
-    }
-  </mat-toolbar>
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <lib-houses-house-filter
+      [availableBlocks]="availableBlocks()"
+      [availableLands]="availableLands()"
+      [initialFilter]="currentFilter()"
+      [showCreateButton]="isAuthenticated()"
+      (filterChange)="onFilterChange($event)"
+      (filterClear)="onFilterClear()"
+      (createHouse)="createHouse()">
+    </lib-houses-house-filter>
+  </div>
 
-  <div class="content-container">
-    <div class="filter-section">
-      <lib-houses-house-filter
-        [availableBlocks]="availableBlocks"
-        [availableLands]="availableLands"
-        [initialFilter]="currentFilter"
-        (filterChange)="onFilterChange($event)"
-        (filterClear)="onFilterClear()">
-      </lib-houses-house-filter>
+  <!-- Content Section -->
+  <div class="content-section">
+    <div class="content-header">
+      <h2 class="h4 mb-1">Available Houses</h2>
+      @if (!loading() && housesCount() > 0) {
+        <p class="text-muted small mb-0">
+          Showing {{ housesCount() }} house{{ housesCount() !== 1 ? 's' : '' }}
+        </p>
+      }
     </div>
 
-    <div class="houses-section">
-      <div class="section-header">
-        <h2>Available Houses</h2>
-        @if (!loading && houses.length > 0) {
-          <p>
-            Showing {{ houses.length }} house{{ houses.length !== 1 ? 's' : '' }}
-          </p>
-        }
-      </div>
+    @if (loading()) {
+      <lib-shared-loading-spinner message="Loading houses..."></lib-shared-loading-spinner>
+    }
 
-      @if (loading) {
-        <lib-shared-loading-spinner 
-          message="Loading houses...">
-        </lib-shared-loading-spinner>
-      }
+    @if (error() && !loading()) {
+      <lib-shared-error-message 
+        type="error"
+        title="Failed to Load Houses"
+        [message]="error() ?? ''"
+        (retry)="loadHouses()">
+      </lib-shared-error-message>
+    }
 
-      @if (error && !loading) {
-        <lib-shared-error-message 
-          type="error"
-          title="Failed to Load Houses"
-          [message]="error"
-          [showRetry]="true"
-          (retry)="loadHouses()">
-        </lib-shared-error-message>
-      }
+    @if (!loading() && !error()) {
+      <!-- Accordion Section for Grouped Houses -->
+      @if (groupedHouses().length > 0) {
+        <mat-accordion class="house-models-accordion" multi>
+          @for (group of groupedHouses(); track group.model.id) {
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  {{ group.modelName }} ({{ group.housesCount }} house{{ group.housesCount !== 1 ? 's' : '' }})
+                </mat-panel-title>
+              </mat-expansion-panel-header>
 
-      @if (!loading && !error) {
-        <div class="houses-content">
-          <!-- Table View -->
-          <div class="table-view">
-            <lib-houses-house-table
-              [houses]="houses"
-              [showEditActions]="isAuthenticated"
-              (viewDetails)="onViewDetails($event)"
-              (edit)="onEditHouse($event)">
-            </lib-houses-house-table>
-          </div>
+              <!-- Model Media Section -->
+              <div class="model-media-section">
+                <div class="media-content">
+                  @if (group.mediaTitle) {
+                    <h3 class="media-title">{{ group.mediaTitle }}</h3>
+                  }
+                  @if (group.mediaDescription) {
+                    <p class="media-description">{{ group.mediaDescription }}</p>
+                  }
+                  @if (group.hasVideo()) {
+                    <a [href]="group.mediaVideo" target="_blank" rel="noopener noreferrer" class="video-link">
+                      <mat-icon>play_circle</mat-icon>
+                      Watch Video
+                    </a>
+                  }
+                </div>
+                @if (group.mediaBanner) {
+                  <img [src]="group.mediaBanner" 
+                       [alt]="group.mediaTitle || group.modelName" 
+                       class="media-banner">
+                }
+              </div>
 
-          <!-- Card Grid View (Alternative) -->
-          <div class="card-view" style="display: none;">
-            <div class="house-grid">
-              @for (house of houses; track house.id) {
-                <lib-houses-house-card
-                  [house]="house"
-                  [showEditButton]="isAuthenticated"
+              <!-- Houses Table -->
+              <div class="houses-table-section">
+                <lib-houses-house-table
+                  [houses]="group.houses"
+                  [showEditActions]="isAuthenticated()"
                   (viewDetails)="onViewDetails($event)"
                   (edit)="onEditHouse($event)">
-                </lib-houses-house-card>
-              }
-            </div>
-          </div>
+                </lib-houses-house-table>
+              </div>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
+      }
 
-          @if (houses.length === 0) {
-            <div class="no-houses">
-              <mat-icon class="no-houses-icon">home_work</mat-icon>
-              <h3>No houses found</h3>
-              <p>{{ currentFilter ? 'Try adjusting your filters to see more results.' : 'No houses are currently available.' }}</p>
-              @if (currentFilter) {
-                <button 
-                  mat-button 
-                  color="primary"
-                  (click)="onFilterClear()">
-                  Clear Filters
-                </button>
-              }
-            </div>
+      @if (groupedHouses().length === 0 && housesCount() === 0) {
+        <div class="text-center py-4 py-md-5">
+          <mat-icon class="display-1 text-muted opacity-50">home_work</mat-icon>
+          <h3 class="h5 mt-3">No houses found</h3>
+          <p class="text-muted">{{ currentFilter() ? 'Try adjusting your filters to see more results.' : 'No houses are currently available.' }}</p>
+          @if (currentFilter()) {
+            <button mat-stroked-button color="primary" (click)="onFilterClear()">Clear Filters</button>
           }
         </div>
       }
-    </div>
+    }
   </div>
 </div>

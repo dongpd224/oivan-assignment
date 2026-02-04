@@ -1,28 +1,40 @@
 import { createReducer, on } from '@ngrx/store';
-import { HouseModel, HouseFilterModel } from '@oivan/houses/domain';
+import { HouseDetailModel, HouseFilterModel, HouseModelModel, GroupedHouseModel } from '@oivan/houses/domain';
 import { PaginationRequestModel } from '@oivan/shared/domain';
 import * as HouseActions from './house.actions';
 
 export interface HouseState {
-  houses: HouseModel[];
-  selectedHouse: HouseModel | null;
+  houses: HouseDetailModel[];
+  groupedHouses: GroupedHouseModel[];
+  selectedHouse: HouseDetailModel | null;
   currentFilter: HouseFilterModel | null;
   currentPagination: PaginationRequestModel | null;
   totalCount: number;
   totalPages: number;
   isLoading: boolean;
   error: string | null;
+  // HouseModel state
+  houseModels: HouseModelModel[];
+  selectedHouseModel: HouseModelModel | null;
+  isLoadingHouseModels: boolean;
+  houseModelError: string | null;
 }
 
 export const initialState: HouseState = {
   houses: [],
+  groupedHouses: [],
   selectedHouse: null,
   currentFilter: null,
   currentPagination: null,
   totalCount: 0,
   totalPages: 0,
   isLoading: false,
-  error: null
+  error: null,
+  // HouseModel initial state
+  houseModels: [],
+  selectedHouseModel: null,
+  isLoadingHouseModels: false,
+  houseModelError: null
 };
 
 export const houseReducer = createReducer(
@@ -35,9 +47,10 @@ export const houseReducer = createReducer(
     error: null
   })),
 
-  on(HouseActions.loadHousesSuccess, (state, { houses, totalCount, totalPages, pagination, filter }) => ({
+  on(HouseActions.loadHousesSuccess, (state, { houses, groupedHouses, totalCount, totalPages, pagination, filter }) => ({
     ...state,
     houses,
+    groupedHouses,
     totalCount,
     totalPages,
     currentPagination: pagination || null,
@@ -161,7 +174,59 @@ export const houseReducer = createReducer(
   on(HouseActions.clearCache, (state) => ({
     ...state,
     houses: [],
+    groupedHouses: [],
     totalCount: 0,
     totalPages: 0
+  })),
+
+  // Load House Models Actions
+  on(HouseActions.loadHouseModels, (state) => ({
+    ...state,
+    isLoadingHouseModels: true,
+    houseModelError: null
+  })),
+
+  on(HouseActions.loadHouseModelsSuccess, (state, { houseModels }) => ({
+    ...state,
+    houseModels,
+    isLoadingHouseModels: false,
+    houseModelError: null
+  })),
+
+  on(HouseActions.loadHouseModelsFailure, (state, { error }) => ({
+    ...state,
+    isLoadingHouseModels: false,
+    houseModelError: error
+  })),
+
+  // Load House Model by ID Actions
+  on(HouseActions.loadHouseModelById, (state) => ({
+    ...state,
+    isLoadingHouseModels: true,
+    houseModelError: null
+  })),
+
+  on(HouseActions.loadHouseModelByIdSuccess, (state, { houseModel }) => ({
+    ...state,
+    selectedHouseModel: houseModel,
+    isLoadingHouseModels: false,
+    houseModelError: null
+  })),
+
+  on(HouseActions.loadHouseModelByIdFailure, (state, { error }) => ({
+    ...state,
+    isLoadingHouseModels: false,
+    houseModelError: error
+  })),
+
+  on(HouseActions.setSelectedHouseModel, (state, { houseModel }) => ({
+    ...state,
+    selectedHouseModel: houseModel
+  })),
+
+  on(HouseActions.clearHouseModelCache, (state) => ({
+    ...state,
+    houseModels: [],
+    selectedHouseModel: null
   }))
 );

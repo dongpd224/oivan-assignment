@@ -1,0 +1,37 @@
+<!-- App Shell Container -->
+<div class="app-container">
+  <!-- Material Toolbar - Responsive -->
+  <mat-toolbar color="primary" class="main-toolbar">
+    <div class="container-fluid">
+      <div class="row align-items-center gy-2">
+        <!-- Brand Section -->
+        <div class="col-12 col-md-auto d-flex align-items-center">
+          <mat-icon class="app-icon me-2">home</mat-icon>
+          <span class="app-title">{{ title }}</span>
+        </div>
+        
+        <!-- Authentication Section -->
+        <div class="col-12 col-md d-flex justify-content-md-end">
+          @if (authFacade.isAuthenticated$ | async) {
+            @if (authFacade.currentUser$ | async; as user) {
+              <lib-header-user-display 
+                [username]="user.firstName" 
+                (logoutClick)="onLogout()">
+              </lib-header-user-display>
+            }
+          } @else {
+            <lib-header-login-widget 
+              (loginSubmit)="onLogin($event)"
+              class="w-100">
+            </lib-header-login-widget>
+          }
+        </div>
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

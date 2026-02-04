@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, OnChanges, input, output } from '@angular/core';
+import { Component, ViewChild, OnInit, OnChanges, AfterViewInit, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -7,7 +7,7 @@ import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { HouseModel, HouseStatus } from '../../../../domain/src';
+import { HouseDetailModel, HouseStatus } from '../../../../domain/src';
 
 @Component({
   selector: 'lib-houses-house-table',
@@ -28,25 +28,24 @@ import { HouseModel, HouseStatus } from '../../../../domain/src';
     // Add expansion animation here if needed
   ]
 })
-export class HouseTableComponent implements OnInit, OnChanges {
-  houses = input<HouseModel[]>([]);
+export class HouseTableComponent implements OnInit, OnChanges, AfterViewInit {
+  houses = input<HouseDetailModel[]>([]);
   showEditActions = input<boolean>(false);
   showPagination = input<boolean>(true);
   pageSize = input<number>(10);
   pageSizeOptions = input<number[]>([5, 10, 25, 50]);
   totalItems = input<number>(0);
 
-  viewDetails = output<HouseModel>();
-  edit = output<HouseModel>();
+  viewDetails = output<HouseDetailModel>();
+  edit = output<HouseDetailModel>();
   sortChange = output<Sort>();
   pageChange = output<PageEvent>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  dataSource = new MatTableDataSource<HouseModel>();
+  dataSource = new MatTableDataSource<HouseDetailModel>();
   displayedColumns = ['houseNumber', 'houseType', 'houseModel', 'price', 'status', 'actions'];
-  expandedHouse: HouseModel | null = null;
   houseStatus = HouseStatus;
 
   ngOnInit() {
@@ -57,26 +56,29 @@ export class HouseTableComponent implements OnInit, OnChanges {
     this.updateDataSource();
   }
 
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item: HouseDetailModel, property: string) => {
+      switch (property) {
+        case 'houseNumber': return item.getFullHouseNumber();
+        case 'houseType': return item.houseType;
+        case 'houseModel': return item.model;
+        case 'price': return item.price;
+        case 'status': return item.status;
+        default: return '';
+      }
+    };
+  }
+
   private updateDataSource() {
     this.dataSource.data = this.houses();
-    if (this.totalItems() === 0) {
-      // Use the actual length of houses array if totalItems is not provided
-    }
   }
 
-  toggleExpansion(house: HouseModel) {
-    this.expandedHouse = this.expandedHouse === house ? null : house;
-  }
-
-  isExpansionDetailRow = (i: number, row: Object) => {
-    return row.hasOwnProperty('detailRow');
-  };
-
-  onViewDetails(house: HouseModel) {
+  onViewDetails(house: HouseDetailModel) {
     this.viewDetails.emit(house);
   }
 
-  onEdit(house: HouseModel) {
+  onEdit(house: HouseDetailModel) {
     this.edit.emit(house);
   }
 

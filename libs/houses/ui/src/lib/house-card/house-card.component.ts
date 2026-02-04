@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { HouseModel, HouseStatus } from  '../../../../domain/src';
+import { HouseDetailModel, HouseStatus } from  '../../../../domain/src';
 
 @Component({
   selector: 'lib-houses-house-card',
@@ -20,11 +20,11 @@ import { HouseModel, HouseStatus } from  '../../../../domain/src';
   styleUrl: './house-card.component.scss'
 })
 export class HouseCardComponent {
-  house = input.required<HouseModel>();
+  house = input.required<HouseDetailModel>();
   showEditButton = input<boolean>(false);
   
-  viewDetails = output<HouseModel>();
-  edit = output<HouseModel>();
+  viewDetails = output<HouseDetailModel>();
+  edit = output<HouseDetailModel>();
 
   houseStatus = HouseStatus;
 

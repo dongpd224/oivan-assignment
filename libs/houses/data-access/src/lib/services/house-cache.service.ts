@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HouseModel, HouseFilterModel } from '../../../domain/src';
-import { PaginationRequestModel } from '../../../../../shared/domain/src';
+import { HouseDetailModel, HouseFilterModel, GroupedHouseModel } from '@oivan/houses/domain';
+import { PaginationRequestModel } from '@oivan/shared/domain';
 
 interface CachedHouseData {
-  houses: HouseModel[];
+  houses: HouseDetailModel[];
+  groupedHouses?: GroupedHouseModel[];
   totalCount: number;
   totalPages: number;
   timestamp: number;
@@ -15,7 +16,7 @@ interface CacheEntry {
 }
 
 interface HouseCacheEntry {
-  house: HouseModel;
+  house: HouseDetailModel;
   expiry: number;
 }
 
@@ -54,6 +55,7 @@ export class HouseCacheService {
     return parts.join('|');
   }
 
+
   get(key: string): CachedHouseData | null {
     const entry = this.cache.get(key);
     
@@ -81,7 +83,7 @@ export class HouseCacheService {
     this.cache.set(key, entry);
   }
 
-  getHouse(id: string): HouseModel | null {
+  getHouse(id: string): HouseDetailModel | null {
     const entry = this.houseCache.get(id);
     
     if (!entry) {
@@ -96,7 +98,7 @@ export class HouseCacheService {
     return entry.house;
   }
 
-  setHouse(id: string, house: HouseModel): void {
+  setHouse(id: string, house: HouseDetailModel): void {
     const entry: HouseCacheEntry = {
       house,
       expiry: Date.now() + this.HOUSE_CACHE_DURATION
@@ -122,66 +124,15 @@ export class HouseCacheService {
     this.clearHouseCache();
   }
 
-  getCacheStats(): {
-    listCacheSize: number;
-    houseCacheSize: number;
-    oldestEntry: number | null;
-    newestEntry: number | null;
-  } {
-    let oldestTimestamp: number | null = null;
-    let newestTimestamp: number | null = null;
-    
-    // Check list cache timestamps
-    for (const entry of this.cache.values()) {
-      const timestamp = entry.data.timestamp;
-      if (oldestTimestamp === null || timestamp < oldestTimestamp) {
-        oldestTimestamp = timestamp;
-      }
-      if (newestTimestamp === null || timestamp > newestTimestamp) {
-        newestTimestamp = timestamp;
-      }
-    }
-    
-    return {
-      listCacheSize: this.cache.size,
-      houseCacheSize: this.houseCache.size,
-      oldestEntry: oldestTimestamp,
-      newestEntry: newestTimestamp
-    };
-  }
-
-  isCacheValid(key: string): boolean {
-    const entry = this.cache.get(key);
-    return entry ? Date.now() <= entry.expiry : false;
-  }
-
-  isHouseCacheValid(id: string): boolean {
-    const entry = this.houseCache.get(id);
-    return entry ? Date.now() <= entry.expiry : false;
-  }
-
-  getFilteredCacheKeys(filterPattern: string): string[] {
-    return Array.from(this.cache.keys()).filter(key => 
-      key.includes(filterPattern)
-    );
-  }
-
-  invalidateFilteredCache(filterPattern: string): void {
-    const keysToRemove = this.getFilteredCacheKeys(filterPattern);
-    keysToRemove.forEach(key => this.cache.delete(key));
-  }
-
   private cleanupExpiredEntries(): void {
     const now = Date.now();
     
-    // Clean up list cache
     for (const [key, entry] of this.cache.entries()) {
       if (now > entry.expiry) {
         this.cache.delete(key);
       }
     }
     
-    // Clean up house cache
     for (const [id, entry] of this.houseCache.entries()) {
       if (now > entry.expiry) {
         this.houseCache.delete(id);

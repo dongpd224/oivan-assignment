@@ -1,0 +1,14 @@
+.user-display-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-weight: 500;
+  color: white;
+}
+
+.logout-button {
+  color: white;
+}

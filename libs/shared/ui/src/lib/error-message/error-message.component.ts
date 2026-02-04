@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class ErrorMessageComponent {
   type = input<'error' | 'warning' | 'info'>('error');
   title = input<string>();
-  message = input<string>('');
+  message = input<string | null>('');
   showRetry = input<boolean>(false);
   retry = output<void>();
 

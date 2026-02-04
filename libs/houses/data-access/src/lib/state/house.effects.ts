@@ -1,20 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { map, catchError, switchMap, tap } from 'rxjs/operators';
-import { HouseApiService } from '../house-api.service';
-import { HouseCacheService } from '../house-cache.service';
-import { HouseModel } from '@oivan/houses/domain';
-import { ApiResponseModel, PaginationResponseModel } from '@oivan/shared/domain';
+import { HouseApiService } from '../services/house-api.service';
+import { HouseCacheService } from '../services/house-cache.service';
+import { HouseDetailModel, HouseModelModel, HousesAndModelsResponse } from '@oivan/houses/domain';
+import { ApiResponseModel } from '@oivan/shared/domain';
+import { groupHousesByModel } from '../utils/house-grouping.util';
 import * as HouseActions from './house.actions';
 
 @Injectable()
 export class HouseEffects {
-  constructor(
-    private actions$: Actions,
-    private houseApiService: HouseApiService,
-    private houseCacheService: HouseCacheService
-  ) {}
+  private actions$ = inject(Actions);
+  private houseApiService = inject(HouseApiService);
+  private houseCacheService = inject(HouseCacheService);
 
   loadHouses$ = createEffect(() =>
     this.actions$.pipe(
@@ -27,6 +26,7 @@ export class HouseEffects {
         if (cachedData) {
           return of(HouseActions.loadHousesSuccess({
             houses: cachedData.houses,
+            groupedHouses: cachedData.groupedHouses || [],
             totalCount: cachedData.totalCount,
             totalPages: cachedData.totalPages,
             pagination,
@@ -34,28 +34,35 @@ export class HouseEffects {
           }));
         }
 
-        return this.houseApiService.getHouses(pagination, filter).pipe(
-          map((response: ApiResponseModel<PaginationResponseModel<HouseModel>>) => {
-            if (response.isSuccess() && response.data) {
-              const houses = response.data.data.map((houseData: any) => new HouseModel(houseData));
+        return this.houseApiService.getHousesAndModels().pipe(
+          map((response: HousesAndModelsResponse) => {
+            const { models, houses } = response;
+            if (houses.data) {
+              const convertedHouses = houses?.data.map((houseData: any) => new HouseDetailModel(houseData));
+              const convertedModels = models?.data?.map((modelData: any) => new HouseModelModel(modelData)) || [];
+              
+              // Group houses by model
+              const groupedHouses = groupHousesByModel(convertedHouses, convertedModels);
               
               // Cache the results
               this.houseCacheService.set(cacheKey, {
-                houses,
-                totalCount: response.data.total,
-                totalPages: response.data.totalPages,
+                houses: convertedHouses,
+                groupedHouses,
+                totalCount: houses.meta.record_count,
+                totalPages: Math.ceil(houses.meta.record_count / 10),
                 timestamp: Date.now()
               });
 
               return HouseActions.loadHousesSuccess({
-                houses,
-                totalCount: response.data.total,
-                totalPages: response.data.totalPages,
+                houses: convertedHouses,
+                groupedHouses,
+                totalCount: houses.meta.record_count,
+                totalPages: Math.ceil(houses.meta.record_count / 10),
                 pagination,
                 filter
               });
             } else {
-              throw new Error(response.error || 'Failed to load houses');
+              throw new Error('Failed to load houses');
             }
           }),
           catchError((error) =>
@@ -79,16 +86,16 @@ export class HouseEffects {
         }
 
         return this.houseApiService.getHouseById(id).pipe(
-          map((response: ApiResponseModel<HouseModel>) => {
-            if (response.isSuccess() && response.data) {
-              const house = new HouseModel(response.data);
+          map((response: ApiResponseModel<HouseDetailModel>) => {
+            if (response.data) {
+              const house = new HouseDetailModel(response.data);
               
               // Cache the house
               this.houseCacheService.setHouse(id, house);
 
               return HouseActions.loadHouseByIdSuccess({ house });
             } else {
-              throw new Error(response.error || 'Failed to load house');
+              throw new Error('Failed to load house');
             }
           }),
           catchError((error) =>
@@ -106,16 +113,16 @@ export class HouseEffects {
       ofType(HouseActions.createHouse),
       switchMap(({ house }) =>
         this.houseApiService.createHouse(house).pipe(
-          map((response: ApiResponseModel<HouseModel>) => {
-            if (response.isSuccess() && response.data) {
-              const newHouse = new HouseModel(response.data);
+          map((response: ApiResponseModel<HouseDetailModel>) => {
+            if (response.data) {
+              const newHouse = new HouseDetailModel(response.data);
               
               // Clear cache to force refresh
               this.houseCacheService.clear();
 
               return HouseActions.createHouseSuccess({ house: newHouse });
             } else {
-              throw new Error(response.error || 'Failed to create house');
+              throw new Error('Failed to create house');
             }
           }),
           catchError((error) =>
@@ -133,9 +140,9 @@ export class HouseEffects {
       ofType(HouseActions.updateHouse),
       switchMap(({ id, house }) =>
         this.houseApiService.updateHouse(id, house).pipe(
-          map((response: ApiResponseModel<HouseModel>) => {
-            if (response.isSuccess() && response.data) {
-              const updatedHouse = new HouseModel(response.data);
+          map((response: ApiResponseModel<HouseDetailModel>) => {
+            if (response.data) {
+              const updatedHouse = new HouseDetailModel(response.data);
               
               // Update cache
               this.houseCacheService.setHouse(id, updatedHouse);
@@ -143,7 +150,7 @@ export class HouseEffects {
 
               return HouseActions.updateHouseSuccess({ house: updatedHouse });
             } else {
-              throw new Error(response.error || 'Failed to update house');
+              throw new Error('Failed to update house');
             }
           }),
           catchError((error) =>
@@ -161,16 +168,12 @@ export class HouseEffects {
       ofType(HouseActions.deleteHouse),
       switchMap(({ id }) =>
         this.houseApiService.deleteHouse(id).pipe(
-          map((response: ApiResponseModel<void>) => {
-            if (response.isSuccess()) {
-              // Clear cache
-              this.houseCacheService.clear();
-              this.houseCacheService.removeHouse(id);
+          map(() => {
+            // Clear cache
+            this.houseCacheService.clear();
+            this.houseCacheService.removeHouse(id);
 
-              return HouseActions.deleteHouseSuccess({ id });
-            } else {
-              throw new Error(response.error || 'Failed to delete house');
-            }
+            return HouseActions.deleteHouseSuccess({ id });
           }),
           catchError((error) =>
             of(HouseActions.deleteHouseFailure({ 

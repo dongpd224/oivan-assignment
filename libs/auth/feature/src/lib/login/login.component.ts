@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LoginFormComponent } from '@oivan/auth/ui';
 import { LoginCredentialsModel } from '@oivan/auth/domain';
-import { AuthFacade } from '../auth.facade';
+import { AuthFacade } from '@oivan/auth/data-access';
 
 @Component({
   selector: 'lib-auth-login',
@@ -21,17 +21,23 @@ export class LoginComponent {
   ) {}
 
   onLogin(credentials: LoginCredentialsModel) {
-    this.authFacade.login(credentials).subscribe({
-      next: () => {
+    this.authFacade.login(credentials);
+    
+    // Subscribe to auth state changes
+    this.authFacade.isAuthenticated$.subscribe(isAuth => {
+      if (isAuth) {
         this.snackBar.open('Login successful!', 'Close', {
           duration: 3000,
           panelClass: ['success-snackbar']
         });
         this.router.navigate(['/houses']);
-      },
-      error: (error) => {
+      }
+    });
+
+    this.authFacade.error$.subscribe(error => {
+      if (error) {
         this.snackBar.open(
-          error.message || 'Login failed. Please try again.', 
+          error || 'Login failed. Please try again.', 
           'Close', 
           {
             duration: 5000,

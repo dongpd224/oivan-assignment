@@ -1,71 +1,59 @@
-.house-table-container {
-  width: 100%;
-}
-
-.houses-table {
-  width: 100%;
-}
-
-.house-row {
+.table-hover tbody tr {
   cursor: pointer;
 }
 
-.house-row:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.expanded-row {
-  border-bottom-color: transparent;
-}
-
-.detail-row {
-  min-height: 0;
-}
-
-.house-detail-expansion {
-  overflow: hidden;
-}
-
-.house-detail-content {
-  padding: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-}
-
-.detail-section {
-  flex: 1;
-  min-width: 200px;
-}
-
-.detail-section h4 {
-  margin: 0 0 0.5rem 0;
-  color: #1976d2;
-}
-
-.detail-section p {
-  margin: 0.25rem 0;
-}
-
-.media-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.media-item {
-  background-color: #f5f5f5;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-}
-
-.detail-actions {
-  flex: 100%;
-  margin-top: 1rem;
-}
-
 .price-cell {
-  font-weight: bold;
-  color: #2e7d32;
+  font-weight: 600;
+  color: #198754;
+}
+
+/* Responsive table styles */
+@media (max-width: 767.98px) {
+  .table {
+    font-size: 0.875rem;
+  }
+  
+  .btn-sm {
+    padding: 0.2rem 0.4rem;
+  }
+  
+  .btn mat-icon {
+    font-size: 1rem;
+    height: 1rem;
+    width: 1rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Stack table on very small screens */
+  .table thead {
+    display: none;
+  }
+  
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+  }
+  
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border: none;
+    
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: #6c757d;
+      margin-right: 1rem;
+    }
+    
+    &:last-child {
+      justify-content: flex-end;
+    }
+  }
 }

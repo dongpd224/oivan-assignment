@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { HouseModel, HouseFilterModel } from '../../../../domain/src';
-import { HouseCardComponent, HouseTableComponent, HouseFilterComponent } from '../../../../ui/src';
-import { HouseFacade } from '../house.facade';
-import { AuthFacade } from '../../../../../auth/feature/src';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { HouseDetailModel, HouseFilterModel, GroupedHouseModel } from '@oivan/houses/domain';
+import { HouseTableComponent, HouseFilterComponent } from '@oivan/houses/ui';
+import { HouseFacade } from '@oivan/houses/data-access';
+import { AuthFacade } from '@oivan/auth/data-access';
+import { LoadingSpinnerComponent, ErrorMessageComponent } from '@oivan/shared/ui';
 
 @Component({
   selector: 'lib-houses-house-list',
@@ -17,94 +19,82 @@ import { AuthFacade } from '../../../../../auth/feature/src';
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
-    HouseCardComponent,
+    MatExpansionModule,
     HouseTableComponent,
-    HouseFilterComponent
+    HouseFilterComponent,
+    LoadingSpinnerComponent,
+    ErrorMessageComponent
   ],
   templateUrl: './house-list.component.html',
   styleUrl: './house-list.component.scss'
 })
 export class HouseListComponent implements OnInit {
-  houses: HouseModel[] = [];
-  loading = false;
-  error: string | null = null;
-  currentFilter: HouseFilterModel | null = null;
-  availableBlocks: string[] = [];
-  availableLands: string[] = [];
-  isAuthenticated = false;
+  private router = inject(Router);
+  private houseFacade = inject(HouseFacade);
+  private authFacade = inject(AuthFacade);
 
-  constructor(
-    private router: Router,
-    private houseFacade: HouseFacade,
-    private authFacade: AuthFacade
-  ) {}
+  houses = signal<HouseDetailModel[]>([]);
+  groupedHouses = this.houseFacade.nonEmptyGroupedHousesSignal;
+  loading = this.houseFacade.isLoadingSignal;
+  error = this.houseFacade.errorSignal
+  currentFilter = signal<HouseFilterModel | undefined>(undefined);
+  availableBlocks = signal<string[]>([]);
+  availableLands = signal<string[]>([]);
+  isAuthenticated = this.authFacade.isAuthenticatedSignal
+
+  housesCount = this.houseFacade.totalCountSignal;
 
   ngOnInit() {
-    // Subscribe to authentication status
-    this.authFacade.isAuthenticated$.subscribe(isAuth => {
-      this.isAuthenticated = isAuth;
-    });
-
-    // Subscribe to houses data
     this.houseFacade.houses$.subscribe(houses => {
-      this.houses = houses;
+      this.houses.set(houses);
       this.updateAvailableOptions();
     });
 
-    // Subscribe to loading state
-    this.houseFacade.loading$.subscribe(loading => {
-      this.loading = loading;
-    });
-
-    // Subscribe to error state
-    this.houseFacade.error$.subscribe(error => {
-      this.error = error;
-    });
-
-    // Subscribe to current filter
     this.houseFacade.currentFilter$.subscribe(filter => {
-      this.currentFilter = filter;
+      this.currentFilter.set(filter ?? undefined);
     });
 
-    // Initial load
     this.loadHouses();
   }
 
   private updateAvailableOptions() {
-    this.availableBlocks = this.houseFacade.getAvailableBlocks();
-    this.availableLands = this.houseFacade.getAvailableLands();
+    this.houseFacade.availableBlocks$.subscribe(blocks => {
+      this.availableBlocks.set(blocks);
+    });
+    this.houseFacade.availableLands$.subscribe(lands => {
+      this.availableLands.set(lands);
+    });
   }
 
   loadHouses() {
-    this.houseFacade.loadHouses(this.currentFilter || undefined);
+    this.houseFacade.loadHouses(undefined, this.currentFilter() || undefined);
   }
 
   onFilterChange(filter: HouseFilterModel) {
-    this.houseFacade.loadHouses(filter);
+    this.houseFacade.loadHouses(undefined, filter);
   }
 
   onFilterClear() {
-    this.houseFacade.clearFilter();
+    this.houseFacade.setFilter(null);
+    this.houseFacade.loadHouses();
   }
 
-  onViewDetails(house: HouseModel) {
-    if (this.isAuthenticated) {
+  onViewDetails(house: HouseDetailModel) {
+    if (this.isAuthenticated()) {
       this.router.navigate(['/houses', house.id]);
     } else {
-      // For non-authenticated users, show basic info or redirect to login
       console.log('View details for:', house.getFullHouseNumber());
-      // Could show a modal with basic info or redirect to login
     }
   }
 
-  onEditHouse(house: HouseModel) {
-    if (this.isAuthenticated) {
+  onEditHouse(house: HouseDetailModel) {
+    if (this.isAuthenticated()) {
       this.router.navigate(['/houses', house.id, 'edit']);
     }
   }
 
   createHouse() {
-    if (this.isAuthenticated) {
+    if (this.isAuthenticated()) {
       this.router.navigate(['/houses/create']);
     }
   }

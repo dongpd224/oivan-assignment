@@ -1,182 +1,91 @@
-<div class="house-detail-container">
-  <div class="detail-header">
-    <button mat-icon-button (click)="goBack()" class="back-button">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-    <h1>House Details</h1>
-    <div class="header-actions">
-      @if (house) {
-        <button mat-raised-button color="primary" (click)="editHouse()">
-          <mat-icon>edit</mat-icon>
-          Edit House
-        </button>
-      }
+<div class="container py-4" style="max-width: 1200px;">
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="h3 mb-0">{{ pageTitle }}</h1>
     </div>
+    @if (house() && !isFormMode) {
+      <button mat-flat-button color="primary" (click)="editHouse()">
+        <mat-icon>edit</mat-icon> Edit House
+      </button>
+    }
   </div>
 
-  @if (loading) {
-    <lib-shared-loading-spinner 
-      message="Loading house details...">
-    </lib-shared-loading-spinner>
+  @if (loading()) {
+    <lib-shared-loading-spinner message="Loading house details..."></lib-shared-loading-spinner>
   }
 
-  @if (error && !loading) {
+  @if (error() && !loading()) {
     <lib-shared-error-message 
       type="error"
       title="Failed to Load House"
-      [message]="error"
+      [message]="error()"
       [showRetry]="true"
       (retry)="loadHouse()">
     </lib-shared-error-message>
   }
 
-  @if (house && !loading) {
-    <div class="house-detail-content">
-      
-      <!-- Main Information Card -->
-      <mat-card class="main-info-card">
-        <mat-card-header>
-          <mat-card-title>{{ house.getFullHouseNumber() }}</mat-card-title>
-          <mat-card-subtitle>{{ house.houseType }} - {{ house.houseModel }}</mat-card-subtitle>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="status-section">
-            <mat-chip 
-              [color]="house.status === houseStatus.AVAILABLE ? 'primary' : 'warn'"
-              selected>
-              <mat-icon matChipAvatar>
-                {{ house.status === houseStatus.AVAILABLE ? 'check_circle' : 'block' }}
-              </mat-icon>
-              {{ house.status }}
-            </mat-chip>
-          </div>
+  <!-- Form Mode (Create/Edit) -->
+  @if (isFormMode && !loading()) {
+    <lib-houses-house-form
+      [house]="house() ?? undefined"
+      [isSubmitting]="isSubmitting"
+      (formSubmit)="onFormSubmit($event)"
+      (formCancel)="onFormCancel()">
+    </lib-houses-house-form>
+  }
 
-          <div class="price-section">
-            <div class="price-label">Price</div>
-            <div class="price-value">{{ house.getFormattedPrice() }}</div>
+  <!-- View Mode -->
+  @if (house() && !loading() && !isFormMode) {
+    <div class="row g-4">
+      <!-- Main Info Card -->
+      <div class="col-12">
+        <div class="card bg-primary text-white shadow">
+          <div class="card-body">
+            <h2 class="card-title h4">{{ house()?.getFullHouseNumber() }}</h2>
+            <p class="card-subtitle opacity-75 mb-3">{{ house()?.houseType }} - {{ house()?.model }}</p>
+            <span class="badge" [class.bg-success]="house()?.status === houseStatus.AVAILABLE" [class.bg-warning]="house()?.status !== houseStatus.AVAILABLE">
+              {{ house()?.status }}
+            </span>
+            <div class="mt-4">
+              <small class="opacity-75">Price</small>
+              <div class="h2 mb-0">{{ house()?.price }}</div>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+      </div>
 
-      <!-- Location Information -->
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-card-title>
+      <!-- Location -->
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-transparent d-flex align-items-center gap-2">
             <mat-icon>location_on</mat-icon>
-            Location Information
-          </mat-card-title>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Block Number:</span>
-              <span class="info-value">{{ house.blockNumber }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Land Number:</span>
-              <span class="info-value">{{ house.landNumber }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Full Address:</span>
-              <span class="info-value">Block {{ house.blockNumber }}, Land {{ house.landNumber }}</span>
-            </div>
+            <span class="fw-semibold">Location Information</span>
           </div>
-        </mat-card-content>
-      </mat-card>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Block Number</span><span>{{ house()?.blockNumber }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Land Number</span><span>{{ house()?.landNumber }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">Full Address</span><span>Block {{ house()?.blockNumber }}, Land {{ house()?.landNumber }}</span></li>
+          </ul>
+        </div>
+      </div>
 
       <!-- Property Details -->
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-card-title>
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-header bg-transparent d-flex align-items-center gap-2">
             <mat-icon>home</mat-icon>
-            Property Details
-          </mat-card-title>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">House Type:</span>
-              <span class="info-value">{{ house.houseType }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">House Model:</span>
-              <span class="info-value">{{ house.houseModel }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">House Number:</span>
-              <span class="info-value">{{ house.houseNumber }}</span>
-            </div>
+            <span class="fw-semibold">Property Details</span>
           </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Description -->
-      @if (house.description) {
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>description</mat-icon>
-              Description
-            </mat-card-title>
-          </mat-card-header>
-          
-          <mat-card-content>
-            <p class="description-text">{{ house.description }}</p>
-          </mat-card-content>
-        </mat-card>
-      }
-
-      <!-- Media Gallery -->
-      @if (house.media && house.media.length > 0) {
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>photo_library</mat-icon>
-              Media Gallery
-            </mat-card-title>
-          </mat-card-header>
-          
-          <mat-card-content>
-            <div class="media-gallery">
-              @for (media of house.media; track media) {
-                <div class="media-item">
-                  <a [href]="media" target="_blank" class="media-link">
-                    <mat-icon>open_in_new</mat-icon>
-                    {{ getMediaFileName(media) }}
-                  </a>
-                </div>
-              }
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
-
-      <!-- Timestamps -->
-      <mat-card class="info-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>schedule</mat-icon>
-            Timeline
-          </mat-card-title>
-        </mat-card-header>
-        
-        <mat-card-content>
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">Created:</span>
-              <span class="info-value">{{ house.createdAt | date:'medium' }}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Last Updated:</span>
-              <span class="info-value">{{ house.updatedAt | date:'medium' }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">House Type</span><span>{{ house()?.houseType }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">House Model</span><span>{{ house()?.model }}</span></li>
+            <li class="list-group-item d-flex justify-content-between"><span class="text-muted">House Number</span><span>{{ house()?.houseNumber }}</span></li>
+          </ul>
+        </div>
+      </div>
     </div>
   }
 </div>

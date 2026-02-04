@@ -37,8 +37,8 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>House Model</mat-label>
-            <input matInput formControlName="houseModel" placeholder="e.g., Modern Villa">
-            @if (houseForm.get('houseModel')?.hasError('required')) {
+            <input matInput formControlName="model" placeholder="e.g., Modern Villa">
+            @if (houseForm.get('model')?.hasError('required')) {
               <mat-error>
                 House model is required
               </mat-error>
@@ -112,17 +112,6 @@
       <!-- Additional Information -->
       <div class="form-section">
         <h3>Additional Information</h3>
-        
-        <mat-form-field appearance="outline" class="form-field full-width">
-          <mat-label>Description</mat-label>
-          <textarea 
-            matInput 
-            formControlName="description" 
-            rows="4"
-            placeholder="Enter house description...">
-          </textarea>
-          <mat-hint>Optional description of the house</mat-hint>
-        </mat-form-field>
 
         <div class="media-section">
           <mat-form-field appearance="outline" class="form-field full-width">

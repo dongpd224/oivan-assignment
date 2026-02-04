@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { HouseModel, HouseFilterModel } from '@oivan/houses/domain';
+import { HouseDetailModel, HouseFilterModel, HouseModelModel, GroupedHouseModel } from '@oivan/houses/domain';
 import { PaginationRequestModel } from '@oivan/shared/domain';
 
 // Load Houses Actions
@@ -11,7 +11,8 @@ export const loadHouses = createAction(
 export const loadHousesSuccess = createAction(
   '[House] Load Houses Success',
   props<{ 
-    houses: HouseModel[]; 
+    houses: HouseDetailModel[]; 
+    groupedHouses: GroupedHouseModel[];
     totalCount: number; 
     totalPages: number;
     pagination?: PaginationRequestModel;
@@ -32,7 +33,7 @@ export const loadHouseById = createAction(
 
 export const loadHouseByIdSuccess = createAction(
   '[House] Load House By ID Success',
-  props<{ house: HouseModel }>()
+  props<{ house: HouseDetailModel }>()
 );
 
 export const loadHouseByIdFailure = createAction(
@@ -43,12 +44,12 @@ export const loadHouseByIdFailure = createAction(
 // Create House Actions
 export const createHouse = createAction(
   '[House] Create House',
-  props<{ house: HouseModel }>()
+  props<{ house: HouseDetailModel }>()
 );
 
 export const createHouseSuccess = createAction(
   '[House] Create House Success',
-  props<{ house: HouseModel }>()
+  props<{ house: HouseDetailModel }>()
 );
 
 export const createHouseFailure = createAction(
@@ -59,12 +60,12 @@ export const createHouseFailure = createAction(
 // Update House Actions
 export const updateHouse = createAction(
   '[House] Update House',
-  props<{ id: string; house: HouseModel }>()
+  props<{ id: string; house: HouseDetailModel }>()
 );
 
 export const updateHouseSuccess = createAction(
   '[House] Update House Success',
-  props<{ house: HouseModel }>()
+  props<{ house: HouseDetailModel }>()
 );
 
 export const updateHouseFailure = createAction(
@@ -101,9 +102,45 @@ export const setPagination = createAction(
 
 export const setSelectedHouse = createAction(
   '[House] Set Selected House',
-  props<{ house: HouseModel | null }>()
+  props<{ house: HouseDetailModel | null }>()
 );
 
 export const clearError = createAction('[House] Clear Error');
 
 export const clearCache = createAction('[House] Clear Cache');
+
+// Load House Models Actions
+export const loadHouseModels = createAction('[HouseModel] Load House Models');
+
+export const loadHouseModelsSuccess = createAction(
+  '[HouseModel] Load House Models Success',
+  props<{ houseModels: HouseModelModel[] }>()
+);
+
+export const loadHouseModelsFailure = createAction(
+  '[HouseModel] Load House Models Failure',
+  props<{ error: string }>()
+);
+
+// Load House Model by ID Actions
+export const loadHouseModelById = createAction(
+  '[HouseModel] Load House Model By ID',
+  props<{ id: string }>()
+);
+
+export const loadHouseModelByIdSuccess = createAction(
+  '[HouseModel] Load House Model By ID Success',
+  props<{ houseModel: HouseModelModel }>()
+);
+
+export const loadHouseModelByIdFailure = createAction(
+  '[HouseModel] Load House Model By ID Failure',
+  props<{ error: string }>()
+);
+
+export const setSelectedHouseModel = createAction(
+  '[HouseModel] Set Selected House Model',
+  props<{ houseModel: HouseModelModel | null }>()
+);
+
+export const clearHouseModelCache = createAction('[HouseModel] Clear Cache');

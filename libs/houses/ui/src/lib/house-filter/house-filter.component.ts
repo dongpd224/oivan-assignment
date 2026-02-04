@@ -36,9 +36,11 @@ export class HouseFilterComponent implements OnInit {
   availableBlocks = input<string[]>([]);
   availableLands = input<string[]>([]);
   initialFilter = input<HouseFilterModel>();
+  showCreateButton = input<boolean>(false);
 
   filterChange = output<HouseFilterModel>();
   filterClear = output<void>();
+  createHouse = output<void>();
 
   filterForm!: FormGroup;
   hasChanges = false;
@@ -194,5 +196,9 @@ export class HouseFilterComponent implements OnInit {
     this.filterClear.emit();
     this.hasChanges = false;
     this.hasActiveFilters = false;
+  }
+
+  onCreateHouse(): void {
+    this.createHouse.emit();
   }
 }
