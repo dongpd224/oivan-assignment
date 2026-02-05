@@ -126,8 +126,19 @@ export const selectGroupedHouses = createSelector(
   (state: HouseState) => state.groupedHouses
 );
 
+export const selectFilteredGroupedHouses = createSelector(
+  selectHouseState,
+  (state: HouseState) => state.filteredGroupedHouses
+);
+
 export const selectNonEmptyGroupedHouses = createSelector(
   selectGroupedHouses,
   (groupedHouses: GroupedHouseModel[]) => 
     groupedHouses.filter(group => group.housesCount > 0)
+);
+
+export const selectNonEmptyFilteredGroupedHouses = createSelector(
+  selectFilteredGroupedHouses,
+  (filteredGroupedHouses: GroupedHouseModel[]) => 
+    filteredGroupedHouses.filter(group => group.housesCount > 0)
 );

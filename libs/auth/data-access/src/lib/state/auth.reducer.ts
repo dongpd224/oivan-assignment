@@ -26,9 +26,8 @@ export const authReducer = createReducer(
     error: null
   })),
 
-  on(AuthActions.loginSuccess, (state, { user }) => ({
+  on(AuthActions.loginSuccess, (state) => ({
     ...state,
-    user,
     isAuthenticated: true,
     isLoading: false,
     error: null
@@ -110,5 +109,23 @@ export const authReducer = createReducer(
   on(AuthActions.clearError, (state) => ({
     ...state,
     error: null
+  })),
+
+  // Init Auth - Check token on app startup
+  on(AuthActions.initAuth, (state) => ({
+    ...state,
+    isLoading: true
+  })),
+
+  on(AuthActions.initAuthSuccess, (state) => ({
+    ...state,
+    isAuthenticated: true,
+    isLoading: false
+  })),
+
+  on(AuthActions.initAuthFailure, (state) => ({
+    ...state,
+    isAuthenticated: false,
+    isLoading: false
   }))
 );

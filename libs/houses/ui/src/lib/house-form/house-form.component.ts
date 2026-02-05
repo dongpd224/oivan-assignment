@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, input, output } from '@angular/core';
+import { Component, OnInit, OnChanges, input, output, computed, DestroyRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -8,7 +8,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
-import { HouseDetailModel, HouseStatus, HouseType } from '../../../../domain/src';
+import { HouseDetailModel, HouseModelModel, HouseStatus, HouseType } from '../../../../domain/src';
+import { InputCurrencyDirective } from '@oivan/shared';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 interface DropdownOption {
   value: any;
@@ -27,13 +30,18 @@ interface DropdownOption {
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatChipsModule
+    MatChipsModule,
+    InputCurrencyDirective
   ],
   templateUrl: './house-form.component.html',
   styleUrl: './house-form.component.scss'
 })
 export class HouseFormComponent implements OnInit, OnChanges {
+  private destroyRef = inject(DestroyRef);
+
   house = input<HouseDetailModel>();
+  houseModels = input<HouseModelModel[]>();
+  houses = input<HouseDetailModel[]>([]);
   isSubmitting = input<boolean>(false);
 
   formSubmit = output<HouseDetailModel>();
@@ -46,11 +54,14 @@ export class HouseFormComponent implements OnInit, OnChanges {
   houseTypeOptions: DropdownOption[] = [];
   statusOptions: DropdownOption[] = [];
 
+  public models = computed(() => this.houseModels()?.map(item => item.model))
+
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
     this.initializeForm();
     this.setupOptions();
+    this.setupHouseNumberValidation();
     this.isEditMode = !!this.house();
     
     if (this.house()) {
@@ -87,6 +98,29 @@ export class HouseFormComponent implements OnInit, OnChanges {
       value: status,
       label: status
     }));
+  }
+
+  private setupHouseNumberValidation() {
+    this.houseForm.get('houseNumber')?.valueChanges.pipe(
+      distinctUntilChanged(),
+      debounceTime(300),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(value => {
+      const houseNumberControl = this.houseForm.get('houseNumber');
+      const currentHouseId = this.house()?.id;
+      
+      // Check if houseNumber already exists (excluding current house in edit mode)
+      const isDuplicate = this.houses().some(
+        h => h.houseNumber === value && h.id !== currentHouseId
+      );
+      
+      if (isDuplicate) {
+        houseNumberControl?.setErrors({ ...houseNumberControl.errors, duplicate: true });
+      } else if (houseNumberControl?.hasError('duplicate')) {
+        const { duplicate, ...otherErrors } = houseNumberControl.errors || {};
+        houseNumberControl.setErrors(Object.keys(otherErrors).length ? otherErrors : null);
+      }
+    });
   }
 
   private loadHouseData() {

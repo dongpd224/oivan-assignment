@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './header-user-display.component.scss'
 })
 export class HeaderUserDisplayComponent {
-  username = input.required<string>();
+  username = input<string>('Admin');
   logoutClick = output<void>();
 
   onLogout(): void {

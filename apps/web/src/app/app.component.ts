@@ -30,6 +30,8 @@ export class App {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   protected authFacade = inject(AuthFacade);
+
+  public isAuthenticatedSignal = this.authFacade.isAuthenticatedSignal;
   
   protected currentRoute$ = this.router.events.pipe(
     filter(event => event instanceof NavigationEnd),
@@ -37,6 +39,9 @@ export class App {
   );
 
   constructor() {
+    // Check token on app init
+    this.authFacade.initAuth();
+    
     // Subscribe to auth errors to show notifications
     this.authFacade.error$.subscribe(error => {
       if (error) {

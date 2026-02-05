@@ -8,7 +8,7 @@ export class TokenService {
   private readonly ACCESS_TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   private readonly TOKEN_EXPIRY_KEY = 'token_expiry';
-  private readonly TOKEN_TTL_MS = 5 * 60 * 1000; // 5 phút
+  private readonly TOKEN_TTL_MS = 20 * 60 * 1000; // 5 phút
 
   setTokens(tokenModel: AuthTokenModel): void {
     const expiryTime = Date.now() + this.TOKEN_TTL_MS;
@@ -34,7 +34,11 @@ export class TokenService {
   isTokenExpired(): boolean {
     const expiry = this.getTokenExpiry();
     if (!expiry) return true;
-    return Date.now() >= expiry;
+    if(Date.now() >= expiry) {
+      this.clearTokens();
+      return true;
+    };
+    return false
   }
 
   hasValidToken(): boolean {
@@ -50,6 +54,6 @@ export class TokenService {
 
   getAuthHeader(): string | null {
     const token = this.getAccessToken();
-    return token && !this.isTokenExpired() ? `Bearer ${token}` : null;
+    return token && !this.isTokenExpired() ? token : null;
   }
 }

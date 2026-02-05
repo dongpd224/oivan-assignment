@@ -31,7 +31,9 @@
   @if (isFormMode && !loading()) {
     <lib-houses-house-form
       [house]="house() ?? undefined"
-      [isSubmitting]="isSubmitting"
+      [houseModels]="houseModels() ?? []"
+      [houses]="houses()"
+      [isSubmitting]="isSubmitting()"
       (formSubmit)="onFormSubmit($event)"
       (formCancel)="onFormCancel()">
     </lib-houses-house-form>

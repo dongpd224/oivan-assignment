@@ -1,14 +1,15 @@
-import { Component, OnInit, input, output } from '@angular/core';
+import { Component, OnInit, input, output, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { HouseFilterModel, HouseType, HouseStatus } from  '../../../../domain/src';
+import { InputCurrencyDirective } from '@oivan/shared';
 
 interface DropdownOption {
   value: any;
@@ -23,11 +24,12 @@ interface DropdownOption {
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
-    MatSelectModule,
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatAutocompleteModule,
+    InputCurrencyDirective
   ],
   templateUrl: './house-filter.component.html',
   styleUrl: './house-filter.component.scss'
@@ -35,7 +37,7 @@ interface DropdownOption {
 export class HouseFilterComponent implements OnInit {
   availableBlocks = input<string[]>([]);
   availableLands = input<string[]>([]);
-  initialFilter = input<HouseFilterModel>();
+  initialFilter = input<HouseFilterModel | null>(null);
   showCreateButton = input<boolean>(false);
 
   filterChange = output<HouseFilterModel>();
@@ -46,12 +48,64 @@ export class HouseFilterComponent implements OnInit {
   hasChanges = false;
   hasActiveFilters = false;
 
-  blockOptions: DropdownOption[] = [];
-  landOptions: DropdownOption[] = [];
-  houseTypeOptions: DropdownOption[] = [];
-  statusOptions: DropdownOption[] = [];
-  sortByOptions: DropdownOption[] = [];
-  sortOrderOptions: DropdownOption[] = [];
+  // Filter signals for autocomplete
+  private blockFilter = signal('');
+  private landFilter = signal('');
+
+  // Computed options
+  blockOptions = computed<DropdownOption[]>(() =>
+    this.availableBlocks().map(block => ({
+      value: block,
+      label: `Block ${block}`
+    }))
+  );
+
+  landOptions = computed<DropdownOption[]>(() =>
+    this.availableLands().map(land => ({
+      value: land,
+      label: `Land ${land}`
+    }))
+  );
+
+  // Filtered options for autocomplete
+  filteredBlockOptions = computed(() => {
+    const filter = this.blockFilter().toLowerCase();
+    return this.blockOptions().filter(opt => 
+      opt.label.toLowerCase().includes(filter) || opt.value.toLowerCase().includes(filter)
+    );
+  });
+
+  filteredLandOptions = computed(() => {
+    const filter = this.landFilter().toLowerCase();
+    return this.landOptions().filter(opt => 
+      opt.label.toLowerCase().includes(filter) || opt.value.toLowerCase().includes(filter)
+    );
+  });
+
+  houseTypeOptions = computed<DropdownOption[]>(() =>
+    Object.values(HouseType).map(type => ({
+      value: type,
+      label: type
+    }))
+  );
+
+  statusOptions = computed<DropdownOption[]>(() =>
+    Object.values(HouseStatus).map(status => ({
+      value: status,
+      label: status
+    }))
+  );
+
+  sortByOptions = signal<DropdownOption[]>([
+    { value: 'houseNumber', label: 'House Number' },
+    { value: 'price', label: 'Price' },
+    { value: 'createdAt', label: 'Date Added' }
+  ]);
+
+  sortOrderOptions = signal<DropdownOption[]>([
+    { value: 'asc', label: 'Ascending' },
+    { value: 'desc', label: 'Descending' }
+  ]);
 
   pricePresets = [
     { label: 'Under 500M', min: 0, max: 500000000 },
@@ -64,7 +118,6 @@ export class HouseFilterComponent implements OnInit {
 
   ngOnInit() {
     this.initializeForm();
-    this.setupOptions();
     this.setupFormSubscription();
     
     if (this.initialFilter()) {
@@ -83,45 +136,6 @@ export class HouseFilterComponent implements OnInit {
       sortBy: ['houseNumber'],
       sortOrder: ['asc']
     });
-  }
-
-  private setupOptions() {
-    // Block options
-    this.blockOptions = this.availableBlocks().map(block => ({
-      value: block,
-      label: `Block ${block}`
-    }));
-
-    // Land options
-    this.landOptions = this.availableLands().map(land => ({
-      value: land,
-      label: `Land ${land}`
-    }));
-
-    // House type options
-    this.houseTypeOptions = Object.values(HouseType).map(type => ({
-      value: type,
-      label: type
-    }));
-
-    // Status options
-    this.statusOptions = Object.values(HouseStatus).map(status => ({
-      value: status,
-      label: status
-    }));
-
-    // Sort by options
-    this.sortByOptions = [
-      { value: 'houseNumber', label: 'House Number' },
-      { value: 'price', label: 'Price' },
-      { value: 'createdAt', label: 'Date Added' }
-    ];
-
-    // Sort order options
-    this.sortOrderOptions = [
-      { value: 'asc', label: 'Ascending' },
-      { value: 'desc', label: 'Descending' }
-    ];
   }
 
   private setupFormSubscription() {
@@ -201,4 +215,24 @@ export class HouseFilterComponent implements OnInit {
   onCreateHouse(): void {
     this.createHouse.emit();
   }
+
+  onBlockInput(event: Event): void {
+    this.blockFilter.set((event.target as HTMLInputElement).value);
+  }
+
+  onLandInput(event: Event): void {
+    this.landFilter.set((event.target as HTMLInputElement).value);
+  }
+
+  displayBlockFn = (value: string): string => {
+    if (!value) return '';
+    const option = this.blockOptions().find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
+
+  displayLandFn = (value: string): string => {
+    if (!value) return '';
+    const option = this.landOptions().find(opt => opt.value === value);
+    return option ? option.label : value;
+  };
 }

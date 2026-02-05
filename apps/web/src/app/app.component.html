@@ -12,17 +12,14 @@
         
         <!-- Authentication Section -->
         <div class="col-12 col-md d-flex justify-content-md-end">
-          @if (authFacade.isAuthenticated$ | async) {
-            @if (authFacade.currentUser$ | async; as user) {
+          @if (isAuthenticatedSignal()) {
               <lib-header-user-display 
-                [username]="user.firstName" 
                 (logoutClick)="onLogout()">
               </lib-header-user-display>
-            }
           } @else {
             <lib-header-login-widget 
               (loginSubmit)="onLogin($event)"
-              class="w-100">
+              >
             </lib-header-login-widget>
           }
         </div>

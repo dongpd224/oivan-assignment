@@ -9,7 +9,7 @@ export const login = createAction(
 
 export const loginSuccess = createAction(
   '[Auth] Login Success',
-  props<{ token: AuthTokenModel; user: AuthUserModel }>()
+  props<{ token: AuthTokenModel}>()
 );
 
 export const loginFailure = createAction(
@@ -55,3 +55,10 @@ export const refreshTokenFailure = createAction(
 
 // Clear Error Action
 export const clearError = createAction('[Auth] Clear Error');
+
+// Init Auth - Check token on app startup
+export const initAuth = createAction('[Auth] Init Auth');
+
+export const initAuthSuccess = createAction('[Auth] Init Auth Success');
+
+export const initAuthFailure = createAction('[Auth] Init Auth Failure');

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -6,10 +6,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { HouseDetailModel, HouseStatus } from '@oivan/houses/domain';
+import { HouseDetailModel, HouseModelModel, HouseStatus } from '@oivan/houses/domain';
 import { LoadingSpinnerComponent, ErrorMessageComponent } from '@oivan/shared/ui';
 import { HouseFormComponent } from '@oivan/houses/ui';
 import { HouseFacade } from '@oivan/houses/data-access';
+import { combineLatest } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 
 @Component({
   selector: 'lib-houses-house-detail',
@@ -30,8 +32,11 @@ import { HouseFacade } from '@oivan/houses/data-access';
 })
 export class HouseDetailComponent implements OnInit {
   private houseFacade = inject(HouseFacade);
+  private destroyRef = inject(DestroyRef)
 
   house: Signal<HouseDetailModel | null> = this.houseFacade.selectedHouseSignal;
+  houseModels: Signal<HouseModelModel[] | null> = this.houseFacade.houseModelsSignal;
+  houses: Signal<HouseDetailModel[]> = this.houseFacade.housesSignal;
   loading = this.houseFacade.isLoadingSignal;
   error = this.houseFacade.errorSignal
   houseStatus = HouseStatus;
@@ -39,7 +44,7 @@ export class HouseDetailComponent implements OnInit {
   // Mode flags
   isCreateMode = false;
   isEditMode = false;
-  isSubmitting = false;
+  isSubmitting = signal(false);
 
   constructor(
     private route: ActivatedRoute,
@@ -47,6 +52,9 @@ export class HouseDetailComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Load house models for the form dropdown
+    this.houseFacade.loadHouseModels();
+
     // Determine mode based on route
     this.route.url.subscribe(segments => {
       const path = segments.map(s => s.path).join('/');
@@ -76,7 +84,8 @@ export class HouseDetailComponent implements OnInit {
   loadHouse(houseId?: string) {
     const id = houseId || this.route.snapshot.params['id'];
     if (id) {
-      this.houseFacade.loadHouseById(id);
+      // We don't have api get by id 
+      // this.houseFacade.loadHouseById(id);
     }
   }
 
@@ -87,6 +96,7 @@ export class HouseDetailComponent implements OnInit {
   }
 
   goBack() {
+    this.houseFacade.clearSelectedHouse();
     this.router.navigate(['/houses']);
   }
 
@@ -99,24 +109,23 @@ export class HouseDetailComponent implements OnInit {
   }
 
   onFormSubmit(house: HouseDetailModel) {
-    this.isSubmitting = true;
+    this.isSubmitting.set(true);
     const houseId = this.house()?.id;
     if (this.isEditMode && houseId) {
       this.houseFacade.updateHouse(houseId, house);
       // Subscribe to selectedHouse$ to navigate after update
-      this.houseFacade.selectedHouse$.subscribe(updatedHouse => {
-        if (updatedHouse && !this.loading) {
-          this.isSubmitting = false;
-          this.router.navigate(['/houses', houseId]);
+      combineLatest([this.houseFacade.selectedHouse$, this.houseFacade.isLoading$]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(updated => {
+        if (updated[0] && !updated[1]) {
+          this.isSubmitting.set(false);
         }
       });
     } else {
       this.houseFacade.createHouse(house);
       // Subscribe to selectedHouse$ to navigate after creation
-      this.houseFacade.selectedHouse$.subscribe(createdHouse => {
-        if (createdHouse && !this.loading) {
-          this.isSubmitting = false;
-          this.router.navigate(['/houses', createdHouse.id]);
+      combineLatest([this.houseFacade.totalCount$, this.houseFacade.isLoading$]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(res => {
+        if (res[0] && !res[1]) {
+          this.isSubmitting.set(false);
+          this.router.navigate(['/houses']);
         }
       });
     }

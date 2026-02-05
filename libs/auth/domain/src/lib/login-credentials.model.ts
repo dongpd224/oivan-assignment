@@ -5,8 +5,13 @@ export enum LOGIN_CREDENTIALS_MAPPING_FIELD {
 }
 
 export interface LoginCredentialsConvertToReqBody {
-  [LOGIN_CREDENTIALS_MAPPING_FIELD.email]: string;
-  [LOGIN_CREDENTIALS_MAPPING_FIELD.password]: string;
+  data: {
+    type: 'auth';
+    attributes: {
+      [LOGIN_CREDENTIALS_MAPPING_FIELD.email]: string;
+      [LOGIN_CREDENTIALS_MAPPING_FIELD.password]: string;
+    };
+  };
 }
 
 export class LoginCredentialsModel {
@@ -29,8 +34,13 @@ export class LoginCredentialsModel {
 
   public convertToReqBody(): LoginCredentialsConvertToReqBody {
     return {
-      [LOGIN_CREDENTIALS_MAPPING_FIELD.email]: this.email,
-      [LOGIN_CREDENTIALS_MAPPING_FIELD.password]: this.password,
+      data: {
+        type: 'auth',
+        attributes: {
+          [LOGIN_CREDENTIALS_MAPPING_FIELD.email]: this.email,
+          [LOGIN_CREDENTIALS_MAPPING_FIELD.password]: this.password,
+        },
+      },
     };
   }
 }

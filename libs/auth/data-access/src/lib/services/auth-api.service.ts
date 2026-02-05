@@ -13,9 +13,10 @@ export class AuthApiService {
   constructor(private http: HttpClient) {}
 
   login(credentials: LoginCredentialsModel): Observable<ApiResponseModel<AuthTokenModel>> {
+    const body = credentials.convertToReqBody();
     return this.http.post<ApiResponseModel<AuthTokenModel>>(
       `${this.baseUrl}`, 
-      credentials.convertToReqBody()
+      body
     );
   }
 

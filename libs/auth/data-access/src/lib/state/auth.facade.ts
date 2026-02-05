@@ -39,4 +39,8 @@ export class AuthFacade {
   clearError(): void {
     this.store.dispatch(AuthActions.clearError());
   }
+
+  initAuth(): void {
+    this.store.dispatch(AuthActions.initAuth());
+  }
 }

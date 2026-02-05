@@ -18,7 +18,7 @@
       <h2 class="h4 mb-1">Available Houses</h2>
       @if (!loading() && housesCount() > 0) {
         <p class="text-muted small mb-0">
-          Showing {{ housesCount() }} house{{ housesCount() !== 1 ? 's' : '' }}
+          Total {{ housesCount() }} house{{ housesCount() !== 1 ? 's' : '' }}
         </p>
       }
     </div>
@@ -58,16 +58,15 @@
                     <p class="media-description">{{ group.mediaDescription }}</p>
                   }
                   @if (group.hasVideo()) {
-                    <a [href]="group.mediaVideo" target="_blank" rel="noopener noreferrer" class="video-link">
-                      <mat-icon>play_circle</mat-icon>
-                      Watch Video
-                    </a>
+                    <!-- This call so many apis -->
+                    <!-- <lib-houses-youtube-embed [videoUrl]="group.mediaVideo!" /> -->
                   }
                 </div>
                 @if (group.mediaBanner) {
                   <img [src]="group.mediaBanner" 
                        [alt]="group.mediaTitle || group.modelName" 
-                       class="media-banner">
+                       class="media-banner"
+                       (error)="$event.target.src = 'https://www.shutterstock.com/shutterstock/photos/2600014993/display_1500/stock-photo-white-modern-house-with-dark-gray-roof-and-fence-standing-against-clear-blue-sky-representing-2600014993.jpg'">
                 }
               </div>
 

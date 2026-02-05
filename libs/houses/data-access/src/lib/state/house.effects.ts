@@ -1,36 +1,79 @@
 import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { map, catchError, switchMap, tap } from 'rxjs/operators';
+import { map, catchError, switchMap, withLatestFrom } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { HouseApiService } from '../services/house-api.service';
-import { HouseCacheService } from '../services/house-cache.service';
 import { HouseDetailModel, HouseModelModel, HousesAndModelsResponse } from '@oivan/houses/domain';
 import { ApiResponseModel } from '@oivan/shared/domain';
 import { groupHousesByModel } from '../utils/house-grouping.util';
 import * as HouseActions from './house.actions';
+import { selectHouses, selectHouseModels, selectGroupedHouses, selectTotalCount, selectTotalPages, selectSelectedHouse, selectCurrentFilter } from './house.selectors';
+
+interface ApiError {
+  title: string;
+  detail: string;
+  code: string;
+  source: { pointer: string };
+  status: string;
+}
+
+interface ApiErrorResponse {
+  errors: ApiError[];
+}
 
 @Injectable()
 export class HouseEffects {
   private actions$ = inject(Actions);
+  private store = inject(Store);
   private houseApiService = inject(HouseApiService);
-  private houseCacheService = inject(HouseCacheService);
+  private snackBar = inject(MatSnackBar);
+
+  /**
+   * Extracts error details from API error response
+   * API returns errors in format: { errors: [{ detail: "field - message" }] }
+   */
+  private extractErrorMessage(error: any): string {
+    if (error?.error?.errors && Array.isArray(error.error.errors)) {
+      const errorDetails = (error.error as ApiErrorResponse).errors
+        .map((e: ApiError) => e.detail)
+        .join('\n');
+      return errorDetails || 'An error occurred';
+    }
+    return error?.message || 'An error occurred';
+  }
+
+  private showErrorToast(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 8000,
+      panelClass: ['error-snackbar'],
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+  }
 
   loadHouses$ = createEffect(() =>
     this.actions$.pipe(
       ofType(HouseActions.loadHouses),
-      switchMap(({ pagination, filter }) => {
-        // Check cache first
-        const cacheKey = this.houseCacheService.generateCacheKey(pagination, filter);
-        const cachedData = this.houseCacheService.get(cacheKey);
-        
-        if (cachedData) {
+      withLatestFrom(
+        this.store.select(selectHouses),
+        this.store.select(selectHouseModels),
+        this.store.select(selectGroupedHouses),
+        this.store.select(selectTotalCount),
+        this.store.select(selectTotalPages),
+        this.store.select(selectCurrentFilter)
+      ),
+      switchMap(([_, houses, houseModels, groupedHouses, totalCount, totalPages, currentFilter]) => {
+        // Return from state if data already exists
+        if (houses.length > 0) {
           return of(HouseActions.loadHousesSuccess({
-            houses: cachedData.houses,
-            groupedHouses: cachedData.groupedHouses || [],
-            totalCount: cachedData.totalCount,
-            totalPages: cachedData.totalPages,
-            pagination,
-            filter
+            houses,
+            houseModels,
+            groupedHouses,
+            totalCount,
+            totalPages,
+            filter: currentFilter ?? undefined,
           }));
         }
 
@@ -43,23 +86,13 @@ export class HouseEffects {
               
               // Group houses by model
               const groupedHouses = groupHousesByModel(convertedHouses, convertedModels);
-              
-              // Cache the results
-              this.houseCacheService.set(cacheKey, {
-                houses: convertedHouses,
-                groupedHouses,
-                totalCount: houses.meta.record_count,
-                totalPages: Math.ceil(houses.meta.record_count / 10),
-                timestamp: Date.now()
-              });
 
               return HouseActions.loadHousesSuccess({
                 houses: convertedHouses,
+                houseModels: convertedModels,
                 groupedHouses,
                 totalCount: houses.meta.record_count,
-                totalPages: Math.ceil(houses.meta.record_count / 10),
-                pagination,
-                filter
+                totalPages: Math.ceil(houses.meta.record_count / 10)
               });
             } else {
               throw new Error('Failed to load houses');
@@ -78,9 +111,15 @@ export class HouseEffects {
   loadHouseById$ = createEffect(() =>
     this.actions$.pipe(
       ofType(HouseActions.loadHouseById),
-      switchMap(({ id }) => {
-        // Check cache first
-        const cachedHouse = this.houseCacheService.getHouse(id);
+      withLatestFrom(this.store.select(selectHouses), this.store.select(selectSelectedHouse)),
+      switchMap(([{ id }, houses, selectedHouse]) => {
+        // Check if already selected
+        if (selectedHouse?.id === id) {
+          return of(HouseActions.loadHouseByIdSuccess({ house: selectedHouse }));
+        }
+        
+        // Check if exists in houses list
+        const cachedHouse = houses.find(h => h.id === id);
         if (cachedHouse) {
           return of(HouseActions.loadHouseByIdSuccess({ house: cachedHouse }));
         }
@@ -89,10 +128,6 @@ export class HouseEffects {
           map((response: ApiResponseModel<HouseDetailModel>) => {
             if (response.data) {
               const house = new HouseDetailModel(response.data);
-              
-              // Cache the house
-              this.houseCacheService.setHouse(id, house);
-
               return HouseActions.loadHouseByIdSuccess({ house });
             } else {
               throw new Error('Failed to load house');
@@ -117,19 +152,16 @@ export class HouseEffects {
             if (response.data) {
               const newHouse = new HouseDetailModel(response.data);
               
-              // Clear cache to force refresh
-              this.houseCacheService.clear();
-
               return HouseActions.createHouseSuccess({ house: newHouse });
             } else {
               throw new Error('Failed to create house');
             }
           }),
-          catchError((error) =>
-            of(HouseActions.createHouseFailure({ 
-              error: error.message || 'Failed to create house' 
-            }))
-          )
+          catchError((error) => {
+            const errorMessage = this.extractErrorMessage(error);
+            this.showErrorToast(errorMessage);
+            return of(HouseActions.createHouseFailure({ error: errorMessage }));
+          })
         )
       )
     )
@@ -144,20 +176,16 @@ export class HouseEffects {
             if (response.data) {
               const updatedHouse = new HouseDetailModel(response.data);
               
-              // Update cache
-              this.houseCacheService.setHouse(id, updatedHouse);
-              this.houseCacheService.clear(); // Clear list cache to force refresh
-
               return HouseActions.updateHouseSuccess({ house: updatedHouse });
             } else {
               throw new Error('Failed to update house');
             }
           }),
-          catchError((error) =>
-            of(HouseActions.updateHouseFailure({ 
-              error: error.message || 'Failed to update house' 
-            }))
-          )
+          catchError((error) => {
+            const errorMessage = this.extractErrorMessage(error);
+            this.showErrorToast(errorMessage);
+            return of(HouseActions.updateHouseFailure({ error: errorMessage }));
+          })
         )
       )
     )
@@ -169,9 +197,6 @@ export class HouseEffects {
       switchMap(({ id }) =>
         this.houseApiService.deleteHouse(id).pipe(
           map(() => {
-            // Clear cache
-            this.houseCacheService.clear();
-            this.houseCacheService.removeHouse(id);
 
             return HouseActions.deleteHouseSuccess({ id });
           }),
@@ -183,15 +208,5 @@ export class HouseEffects {
         )
       )
     )
-  );
-
-  clearCache$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(HouseActions.clearCache),
-      tap(() => {
-        this.houseCacheService.clear();
-      })
-    ),
-    { dispatch: false }
   );
 }

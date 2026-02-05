@@ -66,6 +66,10 @@
       text-decoration: none;
       font-size: 0.875rem;
       font-weight: 500;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
       
       &:hover {
         text-decoration: underline;
@@ -80,8 +84,8 @@
   }
   
   .media-banner {
-    width: 200px;
-    height: 150px;
+    width: 30%;
+    height: auto;
     object-fit: cover;
     border-radius: 8px;
     flex-shrink: 0;

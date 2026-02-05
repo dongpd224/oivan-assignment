@@ -13,10 +13,11 @@ export class HouseFacade {
 
   // Selectors
   houses$ = this.store.select(HouseSelectors.selectHouses);
+  housesSignal = this.store.selectSignal(HouseSelectors.selectHouses);
   totalCountSignal = this.store.selectSignal(HouseSelectors.selectTotalCount);
   selectedHouse$ = this.store.select(HouseSelectors.selectSelectedHouse);
   selectedHouseSignal = this.store.selectSignal(HouseSelectors.selectSelectedHouse);
-  currentFilter$ = this.store.select(HouseSelectors.selectCurrentFilter);
+  currentFilterSignal = this.store.selectSignal(HouseSelectors.selectCurrentFilter);
   currentPagination$ = this.store.select(HouseSelectors.selectCurrentPagination);
   totalCount$ = this.store.select(HouseSelectors.selectTotalCount);
   totalPages$ = this.store.select(HouseSelectors.selectTotalPages);
@@ -26,16 +27,20 @@ export class HouseFacade {
   errorSignal = this.store.selectSignal(HouseSelectors.selectError);
   
   // Computed selectors
-  filteredHouses$ = this.store.select(HouseSelectors.selectFilteredHouses);
-  availableHouses$ = this.store.select(HouseSelectors.selectAvailableHouses);
-  availableBlocks$ = this.store.select(HouseSelectors.selectAvailableBlocks);
-  availableLands$ = this.store.select(HouseSelectors.selectAvailableLands);
+  filteredHousesSignal = this.store.selectSignal(HouseSelectors.selectFilteredHouses);
+  availableHousesSignal = this.store.selectSignal(HouseSelectors.selectAvailableHouses);
+  availableBlocksSignal = this.store.selectSignal(HouseSelectors.selectAvailableBlocks);
+  availableLandsSignal = this.store.selectSignal(HouseSelectors.selectAvailableLands);
 
   // Grouped Houses selectors
   groupedHouses$ = this.store.select(HouseSelectors.selectGroupedHouses);
   groupedHousesSignal = this.store.selectSignal(HouseSelectors.selectGroupedHouses);
+  filteredGroupedHouses$ = this.store.select(HouseSelectors.selectFilteredGroupedHouses);
+  filteredGroupedHousesSignal = this.store.selectSignal(HouseSelectors.selectFilteredGroupedHouses);
   nonEmptyGroupedHouses$ = this.store.select(HouseSelectors.selectNonEmptyGroupedHouses);
   nonEmptyGroupedHousesSignal = this.store.selectSignal(HouseSelectors.selectNonEmptyGroupedHouses);
+  nonEmptyFilteredGroupedHouses$ = this.store.select(HouseSelectors.selectNonEmptyFilteredGroupedHouses);
+  nonEmptyFilteredGroupedHousesSignal = this.store.selectSignal(HouseSelectors.selectNonEmptyFilteredGroupedHouses);
 
   // Actions
   loadHouses(pagination?: PaginationRequestModel, filter?: HouseFilterModel): void {
@@ -62,12 +67,20 @@ export class HouseFacade {
     this.store.dispatch(HouseActions.setFilter({ filter }));
   }
 
+  applyFilter(filter: HouseFilterModel | null): void {
+    this.store.dispatch(HouseActions.applyFilter({ filter }));
+  }
+
   setPagination(pagination: PaginationRequestModel | null): void {
     this.store.dispatch(HouseActions.setPagination({ pagination }));
   }
 
   setSelectedHouse(house: HouseDetailModel | null): void {
     this.store.dispatch(HouseActions.setSelectedHouse({ house }));
+  }
+
+  clearSelectedHouse(): void {
+    this.store.dispatch(HouseActions.clearSelectedHouse());
   }
 
   clearError(): void {
@@ -80,6 +93,7 @@ export class HouseFacade {
 
   // HouseModel Selectors
   houseModels$ = this.store.select(HouseSelectors.selectHouseModels);
+  houseModelsSignal = this.store.selectSignal(HouseSelectors.selectHouseModels);
   selectedHouseModel$ = this.store.select(HouseSelectors.selectSelectedHouseModel);
   isLoadingHouseModels$ = this.store.select(HouseSelectors.selectIsLoadingHouseModels);
   isLoadingHouseModelsSignal = this.store.selectSignal(HouseSelectors.selectIsLoadingHouseModels);

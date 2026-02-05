@@ -12,6 +12,7 @@ export const loadHousesSuccess = createAction(
   '[House] Load Houses Success',
   props<{ 
     houses: HouseDetailModel[]; 
+    houseModels: HouseModelModel[],
     groupedHouses: GroupedHouseModel[];
     totalCount: number; 
     totalPages: number;
@@ -95,6 +96,11 @@ export const setFilter = createAction(
   props<{ filter: HouseFilterModel | null }>()
 );
 
+export const applyFilter = createAction(
+  '[House] Apply Filter',
+  props<{ filter: HouseFilterModel | null }>()
+);
+
 export const setPagination = createAction(
   '[House] Set Pagination',
   props<{ pagination: PaginationRequestModel | null }>()
@@ -104,6 +110,8 @@ export const setSelectedHouse = createAction(
   '[House] Set Selected House',
   props<{ house: HouseDetailModel | null }>()
 );
+
+export const clearSelectedHouse = createAction('[House] Clear Selected House');
 
 export const clearError = createAction('[House] Clear Error');
 

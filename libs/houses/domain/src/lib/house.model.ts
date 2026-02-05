@@ -99,7 +99,7 @@ export class HouseDetailModel {
     if(this.id) {
       body[HOUSE_MAPPING_FIELD.id] = this.id;
     }
-    body[HOUSE_MAPPING_FIELD.type] = this.type,
+    body[HOUSE_MAPPING_FIELD.type] = this.type ?? "houses",
     body[HOUSE_MAPPING_FIELD.links] = this.links,
     body[HOUSE_MAPPING_FIELD.attributes] = {
       [HOUSE_ATTRIBUTES_MAPPING_FIELD.houseNumber]: this.houseNumber,

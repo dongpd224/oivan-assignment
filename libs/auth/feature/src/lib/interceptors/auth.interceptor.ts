@@ -17,12 +17,28 @@ export const AuthInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   // Add auth header if token exists
   const authHeader = tokenService.getAuthHeader();
+  const headers: Record<string, string> = {};
+  
   if (authHeader) {
-    req = req.clone({
-      setHeaders: {
-        Authorization: authHeader
-      }
-    });
+    headers['authentication'] = authHeader;
+  }
+
+  // Handle mutating requests (POST, PUT, PATCH)
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    headers['Content-Type'] = 'application/vnd.api+json';
+    
+    // Wrap body in { data: T } if not already wrapped
+    const body = req.body;
+    if (body && typeof body === 'object' && !('data' in body)) {
+      req = req.clone({ 
+        setHeaders: headers,
+        body: { data: body }
+      });
+    } else if (Object.keys(headers).length > 0) {
+      req = req.clone({ setHeaders: headers });
+    }
+  } else if (Object.keys(headers).length > 0) {
+    req = req.clone({ setHeaders: headers });
   }
 
   return next(req).pipe(
