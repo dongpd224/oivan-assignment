@@ -23,7 +23,11 @@
     "src/**/*.spec.js",
     "src/**/*.test.jsx",
     "src/**/*.spec.jsx",
-    "src/**/*.d.ts"
+    "src/**/*.d.ts",
+    "ui/**/*.spec.ts",
+    "feature/**/*.spec.ts",
+    "data-access/**/*.spec.ts",
+    "domain/**/*.spec.ts"
   ],
   "files": ["src/test-setup.ts"]
 }

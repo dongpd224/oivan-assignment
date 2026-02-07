@@ -4,7 +4,15 @@
   "license": "MIT",
   "scripts": {
     "start": "nx serve web",
-    "start:prod": "nx serve web --configuration=production"
+    "start:prod": "nx serve web --configuration=production",
+    "test": "nx run-many --target=test --all",
+    "test:houses": "nx test houses",
+    "test:auth": "nx test auth",
+    "test:shared": "nx test shared",
+    "test:web": "nx test web",
+    "e2e": "nx e2e web-e2e",
+    "e2e:cypress": "nx e2e web-e2e-cypress",
+    "e2e:cypress:open": "nx open web-e2e-cypress"
   },
   "private": true,
   "dependencies": {

@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "houses",
+      "links": { "self": "http://example.com/houses/1" },
+      "attributes": {
+        "house_number": "H-001",
+        "price": 1000000000,
+        "block_number": "A",
+        "land_number": "01",
+        "house_type": "villa",
+        "model": "Model A",
+        "status": "available"
+      }
+    },
+    {
+      "id": "2",
+      "type": "houses",
+      "links": { "self": "http://example.com/houses/2" },
+      "attributes": {
+        "house_number": "H-002",
+        "price": 500000000,
+        "block_number": "A",
+        "land_number": "02",
+        "house_type": "townhouse",
+        "model": "Model B",
+        "status": "booked"
+      }
+    },
+    {
+      "id": "3",
+      "type": "houses",
+      "links": { "self": "http://example.com/houses/3" },
+      "attributes": {
+        "house_number": "H-003",
+        "price": 750000000,
+        "block_number": "B",
+        "land_number": "01",
+        "house_type": "apartment",
+        "model": "Model A",
+        "status": "available"
+      }
+    }
+  ],
+  "meta": { "record_count": 3 }
+}
